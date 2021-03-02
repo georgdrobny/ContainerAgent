@@ -49,6 +49,9 @@ try
     .\config.cmd --unattended --replace --acceptTeeEula 
 
     Write-Host "Running Azure Pipelines agent..." -ForegroundColor Cyan
+    # if you just want to run one job, pass --once flag to the .\run.cmd
+    # like .\run.cmd --once, the agent will run one job and then terminate
+    # If the agent terminates after --once it will also de-register the agent from the pool.
     .\run.cmd
 }
 finally
