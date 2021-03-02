@@ -1,0 +1,24 @@
+# Docker image
+# Build a Docker image to deploy, run, or push to a container registry.
+# Add steps that use Docker Compose, tag images, push to a registry, run an image, and more:
+# https://docs.microsoft.com/azure/devops/pipelines/languages/docker
+
+jobs:
+- job: 'BuildAgentImage'
+  timeoutInMinutes: 90
+
+  pool:
+    vmImage: 'windows-latest'
+
+  variables:
+    baseImageName: 'mcr.microsoft.com/dotnet/framework/sdk:4.8-windowsservercore-ltsc2019'
+    imageName: '$(dockerId).azurecr.io/pipeline-agent:windows'
+    sourceDir : '$(build.SourcesDirectory)\\ContainerAgent\\windows\\'
+
+  steps:
+  - script: |
+      docker login -u $(dockerId) -p $(password) $(dockerId).azurecr.io
+      docker pull $(baseImageName)
+  - powershell: |
+      ContainerAgent/windows/BuildAgentImage.ps1 -WorkingDir $(build.ArtifactStagingDirectory) -SourceDir $(sourceDir) -BaseImage $(baseImageName) -AgentImage $(imageName) -PushImage
+      

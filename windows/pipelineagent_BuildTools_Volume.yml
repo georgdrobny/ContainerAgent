@@ -1,0 +1,62 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: agent-win
+  labels:
+    app: agent-win
+spec:
+  clusterIP: None
+---
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: agent-win
+spec:
+  serviceName: agent-win
+  replicas: 1
+  selector:
+    matchLabels:
+      app: agent-win
+  template:
+    metadata:
+      labels:
+        app: agent-win
+        version: "1.0"
+    spec:
+      containers:
+      - name: agent-win
+        image: containerdemos.azurecr.io/pipeline-agent:windows
+        imagePullPolicy: IfNotPresent
+        env:
+          - name: VSTS_AGENT_INPUT_URL
+            valueFrom:
+              secretKeyRef:
+                name: azdevops
+                key: azp_url
+          - name: VSTS_AGENT_INPUT_AUTH
+            value: 'pat'
+          - name: VSTS_AGENT_INPUT_TOKEN
+            valueFrom:
+              secretKeyRef:
+                name: azdevops
+                key: azp_token
+          - name: VSTS_AGENT_INPUT_POOL
+            value: Container
+        volumeMounts:
+        - mountPath: C:/AgentData
+          name: agent-data
+      imagePullSecrets:
+        - name: azurecr
+      tolerations:
+        - key: node.kubernetes.io/os
+          operator: Equal
+          value: Windows
+          effect: NoSchedule
+      nodeSelector:
+        kubernetes.io/os: windows
+      volumes:
+      - name: agent-data
+        azureFile:
+          secretName: agentdatasecret
+          shareName: agentdata
+          readOnly: true

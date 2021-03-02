@@ -1,0 +1,53 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: agent-linux
+  labels:
+    app: agent-linux
+spec:
+  clusterIP: None
+---
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: agent-linux
+spec:
+  serviceName: agent-linux
+  replicas: 1
+  selector:
+    matchLabels:
+      app: agent-linux
+  template:
+    metadata:
+      labels:
+        app: agent-linux
+        version: "1.0"
+    spec:
+      containers:
+      - name: agent-linux
+        image: containerdemos.azurecr.io/pipeline-agent:ubuntu-18.04
+        imagePullPolicy: IfNotPresent
+        env:
+          - name: AZP_URL
+            valueFrom:
+              secretKeyRef:
+                name: azdevops
+                key: azp_url
+          - name: AZP_TOKEN
+            valueFrom:
+              secretKeyRef:
+                name: azdevops
+                key: azp_token
+          - name: AZP_POOL
+            value: Container
+        volumeMounts:
+          - mountPath: /var/run/docker.sock
+            name: docker-host
+      nodeSelector:
+        kubernetes.io/os: linux  
+      imagePullSecrets:
+          - name: azurecr
+      volumes:
+          - name: docker-host
+            hostPath:
+                  path: /var/run/docker.sock
