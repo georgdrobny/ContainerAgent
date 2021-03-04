@@ -31,6 +31,6 @@ stages:
         command: buildAndPush
         repository: $(imageRepository)
         dockerfile: $(dockerfilePath)
-        containerRegistry: '$(containerRegistry'
+        containerRegistry: '$(containerRegistry)'
         tags: |
           $(tag)
