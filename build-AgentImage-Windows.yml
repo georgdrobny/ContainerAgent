@@ -13,7 +13,7 @@ jobs:
   variables:
     baseImageName: 'mcr.microsoft.com/dotnet/framework/sdk:4.8-windowsservercore-ltsc2019'
     imageName: 'containeragent.azurecr.io/pipeline-agent:windows'
-    sourceDir : '$(build.SourcesDirectory)\\ContainerAgent\\windows\\'
+    sourceDir : '$(build.SourcesDirectory)\\windows\\'
 
   steps:
   - task: Docker@2
