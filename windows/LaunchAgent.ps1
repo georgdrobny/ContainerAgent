@@ -52,7 +52,7 @@ try
     # if you just want to run one job, pass --once flag to the .\run.cmd
     # like .\run.cmd --once, the agent will run one job and then terminate
     # If the agent terminates after --once it will also de-register the agent from the pool.
-    if ((!([string]::IsNullOrEmpty($ENV:RUN_ONCE))) -or ($ENV:RUN_ONCE -eq $False)) {
+    if (([string]::IsNullOrEmpty($ENV:RUN_ONCE)) -or ($ENV:RUN_ONCE -eq $False)) {
         Write-Host "Running Azure Pipelines agent..." -ForegroundColor Cyan
         .\run.cmd
     }
