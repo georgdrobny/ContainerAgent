@@ -2,18 +2,15 @@
 # Build and push an image to Azure Container Registry
 # https://docs.microsoft.com/azure/devops/pipelines/languages/docker
 
-trigger:
-- master
+trigger: none
 
 resources:
 - repo: self
 
 variables:
-  # Container registry service connection established during pipeline creation
-  dockerRegistryServiceConnection: '9b5ef0b0-9d03-46a9-996b-ce24ecf65271'
   imageRepository: 'pipeline-agent'
-  containerRegistry: 'containerdemos.azurecr.io'
-  dockerfilePath: '$(Build.SourcesDirectory)/ContainerAgent/linux/Dockerfile'
+  containerRegistry: 'containeragent.azurecr.io'
+  dockerfilePath: '$(Build.SourcesDirectory)/linux/Dockerfile'
   tag: 'ubuntu-18.04'
   
   # Agent VM image name
@@ -34,6 +31,6 @@ stages:
         command: buildAndPush
         repository: $(imageRepository)
         dockerfile: $(dockerfilePath)
-        containerRegistry: $(dockerRegistryServiceConnection)
+        containerRegistry: '$(containerRegistry'
         tags: |
           $(tag)
