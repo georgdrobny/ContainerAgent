@@ -1,7 +1,9 @@
-# Docker image
-# Build a Docker image to deploy, run, or push to a container registry.
-# Add steps that use Docker Compose, tag images, push to a registry, run an image, and more:
-# https://docs.microsoft.com/azure/devops/pipelines/languages/docker
+# Build Azure Pipeline Agent Container Image
+# The pipeline get's two input parameters
+# Parameter: VS Version (Which Version of Visual Studio should be used for the image)
+#            Supported Version: 2017, 2019
+# Parameter: SKU - Enterprise or Professional Version of Visual Studio
+#
 
 parameters:
 - name: VSVersion
@@ -19,6 +21,8 @@ parameters:
   values: 
   - Professional
   - Enterprise
+
+trigger: none
 
 jobs:
 - job: 'BuildVisualStudioImage'
