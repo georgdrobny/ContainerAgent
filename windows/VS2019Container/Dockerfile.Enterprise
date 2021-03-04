@@ -31,8 +31,12 @@ RUN C:\TEMP\vs_enterprise.exe --quiet --wait --norestart --nocache `
     --remove Microsoft.VisualStudio.Component.Windows81SDK `
  || IF "%ERRORLEVEL%"=="3010" EXIT 0
 
-# Start developer command prompt with any other commands specified.
-ENTRYPOINT 'C:/Program Files (x86)/Microsoft Visual Studio/2019/Enterprise/Common7/Tools/VsDevCmd.bat' &&
+ENV VSTS_AGENT_INPUT_URL=https://dev.azure.com
+ENV VSTS_AGENT_INPUT_AUTH=pat
+ENV VSTS_AGENT_INPUT_POOL=default
+ENV VSTS_AGENT_INPUT_AGENT=$COMPUTERNAME 
+ENV VSTS_AGENT_INPUT_TOKEN="tokenvalue"
 
-# Default to PowerShell if no other command specified.
-CMD ["powershell.exe", "-NoLogo", "-ExecutionPolicy", "Bypass"]
+WORKDIR /agent
+COPY LaunchAgent.ps1 /agent
+CMD powershell -File .\LaunchAgent.ps1
