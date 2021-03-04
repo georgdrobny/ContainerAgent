@@ -12,13 +12,14 @@ jobs:
 
   variables:
     baseImageName: 'mcr.microsoft.com/dotnet/framework/sdk:4.8-windowsservercore-ltsc2019'
-    imageName: '$(dockerId).azurecr.io/pipeline-agent:windows'
+    imageName: 'containeragent.azurecr.io/pipeline-agent:windows'
     sourceDir : '$(build.SourcesDirectory)\\ContainerAgent\\windows\\'
 
   steps:
-  - script: |
-      docker login -u $(dockerId) -p $(password) $(dockerId).azurecr.io
-      docker pull $(baseImageName)
+  - task: Docker@2
+    inputs:
+      containerRegistry: 'containeragent'
+      command: 'login'
   - powershell: |
       ContainerAgent/windows/BuildAgentImage.ps1 -WorkingDir $(build.ArtifactStagingDirectory) -SourceDir $(sourceDir) -BaseImage $(baseImageName) -AgentImage $(imageName) -PushImage
       
