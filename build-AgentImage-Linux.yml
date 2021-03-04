@@ -9,7 +9,7 @@ resources:
 
 variables:
   imageRepository: 'pipeline-agent'
-  containerRegistry: 'containeragent.azurecr.io'
+  containerRegistry: 'containeragent'
   dockerfilePath: '$(Build.SourcesDirectory)/linux/Dockerfile'
   tag: 'ubuntu-18.04'
   
