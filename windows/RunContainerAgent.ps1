@@ -4,7 +4,7 @@ Param(
     [Parameter(Mandatory=$true)]
     [string] $AgentName,
     [string] $PoolName = 'Container',
-    [string] $ImageName = 'containerdemos.azurecr.io/pipeline-agent:windows',
+    [string] $ImageName = 'containeragent.azurecr.io/pipeline-agent:windows',
     [switch] $Interactive,
     [switch] $RunOnce,
     [hashtable] $VolumeMount
