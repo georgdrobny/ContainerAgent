@@ -5,9 +5,11 @@ Param(
     [Parameter()]
     [string] $SourceDir = $PWD,
     [Parameter()]
+    [string] $AgentPackage,
+    [Parameter()]
     [string] $BaseImage = "mcr.microsoft.com/dotnet/framework/sdk:4.8-windowsservercore-ltsc2019",
     [Parameter()]
-    [string] $AgentImage = "containerdemos.azurecr.io/pipeline-agent:windows",
+    [string] $AgentImage = "containeragent.azurecr.io/pipeline-agent:windows",
     [Parameter()]
     [switch] $PushImage,
     [Parameter()]
@@ -41,6 +43,12 @@ Function ValidateParameters()
     {
         Throw "Agent Launcher $AgentLauncher does not exist!"
     }
+    # Test if AgentPackage was specified and if it exists
+    if (!([string]::IsNullOrEmpty($AgentPackage))) {
+        if (!(Test-Path $AgentPackage)) {
+            Throw "Agent Package $AgentPackage does not exist!"
+        }
+    }
 }
 Function CreateOrCleanWorkingDirectory([string] $WorkingDir, [switch] $Clean)
 {
@@ -72,6 +80,11 @@ ValidateParameters
 # Copy needed files to working Directory
 $DockerFile = Copy-Item -Path $DockerFile -Destination $WorkingDir -PassThru
 Copy-Item $AgentLauncher -Destination $WorkingDir | Out-Null
+
+# Extract AgentPackge if specified to working Directory
+if (![string]::IsNullOrEmpty($AgentPackage)) {
+    Expand-Archive -Path $AgentPackage -DestinationPath $WorkingDir
+}
 
 # Build Agent Base Image
 try {

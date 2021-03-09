@@ -8,6 +8,9 @@
     VSTS_AGENT_INPUT_POOL=<poolname>
     VSTS_AGENT_INPUT_AGENT=<agentname> 
     RUN_ONCE=<bool>
+
+    NOTE: If the agent is already preinstalled in the image, the script will not download the agent
+    If the file config.cmd exists the script assumes that the agent is preinstalled.
 #>
 [CmdletBinding()]
 Param()
@@ -22,27 +25,35 @@ if ([string]::IsNullOrEmpty($ENV:VSTS_AGENT_INPUT_TOKEN)) {
     exit 1
 }
 
+[bool] $skipDownload = $false
+if (Test-Path .\config.cmd) {
+    Write-Host "Agent is pre-installed, skipping download..." -ForegroundColor Yellow
+    $skipDownload = $true
+}
+
 [string] $base64AuthInfo = [Convert]::ToBase64String([Text.Encoding]::ASCII.GetBytes(("{0}:{1}" -f "", $ENV:VSTS_AGENT_INPUT_TOKEN)))
 [hashtable] $AuthHeader = @{ Authorization = "Basic $base64AuthInfo" }
 [string] $Uri = "$ENV:VSTS_AGENT_INPUT_URL/_apis/distributedtask/packages/agent?platform=win-x64"
 
-Write-Host "Determining matching Azure Pipelines agent..." -ForegroundColor Cyan
-$rsp = Invoke-WebRequest -uri $Uri -UseBasicParsing -Headers $AuthHeader
-if ($rsp.StatusCode -ne 200) {
-    Write-Error "Could not determine a matching Azure Pipelines agent - check that account '$ENV:VSTS_AGENT_INPUT_URL' is correct and the token is valid for that account"
-    exit 1
+if (!$skipDownload) {
+    Write-Host "Determining matching Azure Pipelines agent..." -ForegroundColor Cyan
+    $rsp = Invoke-WebRequest -uri $Uri -UseBasicParsing -Headers $AuthHeader
+    if ($rsp.StatusCode -ne 200) {
+        Write-Error "Could not determine a matching Azure Pipelines agent - check that account '$ENV:VSTS_AGENT_INPUT_URL' is correct and the token is valid for that account"
+        exit 1
+    }
+    
+    [PSCustomObject] $agentList = ConvertFrom-Json $rsp.content;
+    [string] $agentPackage = $agentList.value[0].filename
+    $ProgressPreference = 'SilentlyContinue'
+    
+    Write-Host "Downloading and installing Azure Pipelines agent..." -ForegroundColor Cyan
+    [Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12
+    Invoke-WebRequest -UseBasicParsing -Uri $agentList.value[0].downloadUrl -OutFile $agentPackage
+    Unblock-File $agentPackage
+    Expand-Archive -Path $agentPackage -DestinationPath .\
+    Remove-Item -Path $agentPackage -Force       
 }
-
-[PSCustomObject] $agentList = ConvertFrom-Json $rsp.content;
-[string] $agentPackage = $agentList.value[0].filename
-$ProgressPreference = 'SilentlyContinue'
-
-Write-Host "Downloading and installing Azure Pipelines agent..." -ForegroundColor Cyan
-[Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12
-Invoke-WebRequest -UseBasicParsing -Uri $agentList.value[0].downloadUrl -OutFile $agentPackage
-Unblock-File $agentPackage
-Expand-Archive -Path $agentPackage -DestinationPath .\
-Remove-Item -Path $agentPackage -Force
 
 try
 {
