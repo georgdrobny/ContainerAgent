@@ -56,6 +56,16 @@ Param(
         $argList += $volumes
     }
     $argList += $ImageName
-    Start-Process docker -ArgumentList $argList -NoNewWindow
+
+    [string] $tmpOut = [System.IO.Path]::GetTempFileName();
+    [string] $tmpErr = [System.IO.Path]::GetTempFileName();
+    Start-Process docker -ArgumentList $argList -RedirectStandardOutput $tmpOut -RedirectStandardError $tmpErr -Wait -WindowStyle Hidden
+    if ((Get-Item $tmpOut).Length -gt 0) {
+        Get-Content $tmpOut
+    }
+    if ((Get-Item $tmpErr).Length -gt 0) {
+        Get-Content $tmpErr
+    }
+    Remove-Item $tmpOut,$tmpErr -Force -ErrorAction SilentlyContinue
 }
 
