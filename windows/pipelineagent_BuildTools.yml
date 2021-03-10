@@ -25,7 +25,7 @@ spec:
     spec:
       containers:
       - name: agent-win
-        image: containerdemos.azurecr.io/pipeline-agent:windows
+        image: containeragent.azurecr.io/pipeline-agent:windows
         imagePullPolicy: IfNotPresent
         env:
           - name: VSTS_AGENT_INPUT_URL
@@ -41,7 +41,9 @@ spec:
                 name: azdevops
                 key: azp_token
           - name: VSTS_AGENT_INPUT_POOL
-            value: Container
+            value: 'Container'
+          - name: RUN_ONCE
+            value: 'TRUE'
         # volumeMounts:
         # - mountPath: /var/run/docker.sock
         #   name: docker-volume
