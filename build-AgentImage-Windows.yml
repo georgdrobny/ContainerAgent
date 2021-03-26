@@ -15,11 +15,12 @@ jobs:
     baseImageName: 'mcr.microsoft.com/dotnet/framework/sdk:4.8-windowsservercore-ltsc2019'
     imageName: 'containeragent.azurecr.io/pipeline-agent:windows'
     sourceDir : '$(build.SourcesDirectory)\\windows\\'
+    download: $[${{ parameters.DownloadAgent }}]
 
   steps:
   - powershell: |
      windows/DownloadAgent.ps1 -AzureDevOpsOrganization $(AzureDevOpsOrganization) -AzureDevOpsPersonalAccessToken $(AzureDevOpsToken) -DestinationDirectory $(Build.Artifact)
-    condition: eq(parameters.DownloadAgent,true) 
+    condition: eq($variables.download,true) 
   - task: Docker@2
     inputs:
       containerRegistry: 'containeragent'
