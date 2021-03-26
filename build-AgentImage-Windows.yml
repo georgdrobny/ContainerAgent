@@ -20,7 +20,7 @@ jobs:
   steps:
   - powershell: |
      windows/DownloadAgent.ps1 -AzureDevOpsOrganization $(AzureDevOpsOrganization) -AzureDevOpsPersonalAccessToken $(AzureDevOpsToken) -DestinationDirectory $(Build.Artifact)
-    condition: eq($variables.download,true) 
+    condition: eq(variables.download,true) 
   - task: Docker@2
     inputs:
       containerRegistry: 'containeragent'
