@@ -39,3 +39,4 @@ Write-Host "Downloading Azure Pipelines agent $AgentVersion ..." -ForegroundColo
 Invoke-WebRequest -UseBasicParsing -Uri $agentList.value[0].downloadUrl -OutFile $agentPackage
 Unblock-File $agentPackage
 Write-Host "Finshed Downloading Azure Pipelines agent" -ForegroundColor Green
+Return $agentPackage
