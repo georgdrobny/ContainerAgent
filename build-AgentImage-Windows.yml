@@ -1,3 +1,5 @@
+trigger: none
+
 parameters:
 - name: DownloadAgent
   displayName: Download and Install Latest Pipeline Agent
