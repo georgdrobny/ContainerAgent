@@ -17,6 +17,7 @@ jobs:
     baseImageName: 'mcr.microsoft.com/dotnet/framework/sdk:4.8-windowsservercore-ltsc2019'
     imageName: 'containeragent.azurecr.io/pipeline-agent:windows'
     sourceDir : '$(build.SourcesDirectory)\\windows\\'
+    workingDir : '$(build.ArtifactStagingDirectory)\\agent\\'
     download: $[${{ parameters.DownloadAgent }}]
     agentPackage: ''
 
@@ -30,5 +31,5 @@ jobs:
       containerRegistry: 'containeragent'
       command: 'login'
   - powershell: |
-      windows/BuildAgentImage.ps1 -WorkingDir $(build.ArtifactStagingDirectory) -SourceDir $(sourceDir) -BaseImage $(baseImageName) -AgentImage $(imageName) -PushImage -AgentPackage $(agentPackage)
+      windows/BuildAgentImage.ps1 -WorkingDir $(workingDir) -SourceDir $(sourceDir) -BaseImage $(baseImageName) -AgentImage $(imageName) -PushImage -AgentPackage $(agentPackage)
       
