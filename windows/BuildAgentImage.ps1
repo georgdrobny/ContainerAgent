@@ -84,6 +84,10 @@ Copy-Item $AgentLauncher -Destination $WorkingDir | Out-Null
 # Extract AgentPackge if specified to working Directory
 if (![string]::IsNullOrEmpty($AgentPackage)) {
     Expand-Archive -Path $AgentPackage -DestinationPath $WorkingDir
+    if ($AgentPackage -match "vsts-agent-win-x64-(\d+.\d+.\d+)") {
+        $agentVersion = $matches[1]
+        $AgentImage = "{0}-{1}" -f $AgentImage, $agentVersion
+    }
 }
 
 # Build Agent Base Image
