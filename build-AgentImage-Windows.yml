@@ -35,14 +35,21 @@ jobs:
      $tag = windows/BuildAgentImage.ps1 -WorkingDir $(workingDir) -SourceDir $(sourceDir) -AgentPackage $(agentPackage)
      Write-Host "##vso[task.setvariable variable=tag]$tag"
   - task: Docker@2
-    displayName: Build and push Windows Pipeline Agent Image
+    displayName: Build Windows Pipeline Agent Image
     inputs:
-      command: buildAndPush
-      repository: $(imageRepository)
-      dockerfile: $(dockerfilePath)
       containerRegistry: '$(containerRegistry)'
-      arguments: BASE=$(baseImageName)
-      tags: |
-        $(tag)
+      repository: '$(imageRepository)'
+      command: 'build'
+      Dockerfile: $(dockerfilePath)
+      tags: '$(tag)'
+      arguments: 'BASE=$(baseImageName)'
+  - task: Docker@2
+    displayName: Push Windows Pipeline Agent Image
+    inputs:
+      containerRegistry: $(containerRegistry)
+      repository: '$(imageRepository)'
+      command: 'push'
+      tags: '$(tag)'
+      addPipelineData: true
       
       
