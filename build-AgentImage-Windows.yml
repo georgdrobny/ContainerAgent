@@ -41,6 +41,7 @@ jobs:
       repository: $(imageRepository)
       dockerfile: $(dockerfilePath)
       containerRegistry: '$(containerRegistry)'
+      arguments: BASE=$(baseImageName)
       tags: |
         $(tag)
       
