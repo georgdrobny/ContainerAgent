@@ -46,7 +46,7 @@ Function ValidateParameters()
         Throw "Agent Launcher $AgentLauncher does not exist!"
     }
     # Test if AgentPackage was specified and if it exists
-    if (!([string]::IsNullOrEmpty($AgentPackage)) -and ($AgentPackage -ne '<none>')) {
+    if (!([string]::IsNullOrEmpty($AgentPackage)) -and ($AgentPackage -ne 'none')) {
         if (!(Test-Path $AgentPackage)) {
             Throw "Agent Package $AgentPackage does not exist!"
         }
