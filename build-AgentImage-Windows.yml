@@ -5,24 +5,25 @@ parameters:
   displayName: Download and Install Latest Pipeline Agent
   type: boolean
   default: False
- 
+
+variables:
+  baseImageName: 'mcr.microsoft.com/dotnet/framework/sdk:4.8-windowsservercore-ltsc2019'
+  imageRepository: 'pipeline-agent'
+  containerRegistry: 'containeragent'
+  sourceDir : '$(build.SourcesDirectory)\\windows\\'
+  workingDir : '$(build.ArtifactStagingDirectory)\\agent\\'
+  dockerfilePath: '$(build.ArtifactStagingDirectory)\\agent\\Dockerfile'
+  download: $[${{ parameters.DownloadAgent }}]
+  agentPackage: '<none>'
+  tag: 'windows'
+  vmImageName: 'windows-2019'
+
 jobs:
 - job: 'BuildAgentImage'
   timeoutInMinutes: 90
 
   pool:
-    vmImage: 'windows-2019'
-
-  variables:
-    baseImageName: 'mcr.microsoft.com/dotnet/framework/sdk:4.8-windowsservercore-ltsc2019'
-    imageRepository: 'pipeline-agent'
-    containerRegistry: 'containeragent'
-    sourceDir : '$(build.SourcesDirectory)\\windows\\'
-    workingDir : '$(build.ArtifactStagingDirectory)\\agent\\'
-    dockerfilePath: '$(build.ArtifactStagingDirectory)\\agent\\Dockerfile'
-    download: $[${{ parameters.DownloadAgent }}]
-    agentPackage: '<none>'
-    tag: 'windows'
+    vmImage: $(vmImageName)
 
   steps:
   - powershell: |
