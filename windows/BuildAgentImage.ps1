@@ -85,7 +85,7 @@ $DockerFile = Copy-Item -Path $DockerFile -Destination $WorkingDir -PassThru
 Copy-Item $AgentLauncher -Destination $WorkingDir | Out-Null
 
 # Extract AgentPackge if specified to working Directory
-if (![string]::IsNullOrEmpty($AgentPackage)) {
+if (!([string]::IsNullOrEmpty($AgentPackage)) -and ($AgentPackage -ne 'none')) {
     Write-Host "Expanding $AgentPackage..."
     Expand-Archive -Path $AgentPackage -DestinationPath $WorkingDir
     if ($AgentPackage -match "vsts-agent-win-x64-(\d+.\d+.\d+)") {
