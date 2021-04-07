@@ -11,25 +11,36 @@ jobs:
   timeoutInMinutes: 90
 
   pool:
-    vmImage: 'windows-latest'
+    vmImage: 'windows-2019'
 
   variables:
     baseImageName: 'mcr.microsoft.com/dotnet/framework/sdk:4.8-windowsservercore-ltsc2019'
-    imageName: 'containeragent.azurecr.io/pipeline-agent:windows'
+    imageRepository: 'pipeline-agent'
+    containerRegistry: 'containeragent'
     sourceDir : '$(build.SourcesDirectory)\\windows\\'
     workingDir : '$(build.ArtifactStagingDirectory)\\agent\\'
+    dockerfilePath: '$(build.ArtifactStagingDirectory)\\agent\\Dockerfile'
     download: $[${{ parameters.DownloadAgent }}]
-    agentPackage: ''
+    agentPackage: '<none>'
+    tag: 'windows'
 
   steps:
   - powershell: |
      $package = windows/DownloadAgent.ps1 -AzureDevOpsOrganization $(AzureDevOpsOrganization) -AzureDevOpsPersonalAccessToken $(AzureDevOpsToken) -DestinationDirectory $(Build.ArtifactStagingDirectory)
      Write-Host "##vso[task.setvariable variable=agentPackage]$package"
     condition: eq(variables.download,true) 
-  - task: Docker@2
-    inputs:
-      containerRegistry: 'containeragent'
-      command: 'login'
+    displayName: 'Download Agent Package'
   - powershell: |
-      windows/BuildAgentImage.ps1 -WorkingDir $(workingDir) -SourceDir $(sourceDir) -BaseImage $(baseImageName) -AgentImage $(imageName) -PushImage -AgentPackage $(agentPackage)
+     $tag = windows/BuildAgentImage.ps1 -WorkingDir $(workingDir) -SourceDir $(sourceDir) -AgentPackage $(agentPackage)
+     Write-Host "##vso[task.setvariable variable=tag]$tag"
+  - task: Docker@2
+    displayName: Build and push Windows Pipeline Agent Image
+    inputs:
+      command: buildAndPush
+      repository: $(imageRepository)
+      dockerfile: $(dockerfilePath)
+      containerRegistry: '$(containerRegistry)'
+      tags: |
+        $(tag)
+      
       

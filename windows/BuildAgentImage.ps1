@@ -6,17 +6,19 @@ Param(
     [string] $SourceDir = $PWD,
     [Parameter()]
     [string] $AgentPackage,
-    [Parameter()]
+    [Parameter(ParameterSetName = 'Container')]
     [string] $BaseImage = "mcr.microsoft.com/dotnet/framework/sdk:4.8-windowsservercore-ltsc2019",
-    [Parameter()]
-    [string] $AgentImage = "containeragent.azurecr.io/pipeline-agent:windows",
-    [Parameter()]
-    [switch] $PushImage,
+    [Parameter(ParameterSetName = 'Container')]
+    [string] $AgentRepository = "pipeline-agent",
+    [Parameter(ParameterSetName = 'Container')]
+    [string] $Tag = 'windows',
+    [Parameter(ParameterSetName = 'Container')]
+    [switch] $BuildAndPushImage,
     [Parameter()]
     [switch] $Clean
 )
 
-# region Functions
+#region Functions
 
 Function Remove-QuotesFromPath([string] $Path)
 {
@@ -44,19 +46,20 @@ Function ValidateParameters()
         Throw "Agent Launcher $AgentLauncher does not exist!"
     }
     # Test if AgentPackage was specified and if it exists
-    if (!([string]::IsNullOrEmpty($AgentPackage))) {
+    if (!([string]::IsNullOrEmpty($AgentPackage)) -and ($AgentPackage -ne '<none>')) {
         if (!(Test-Path $AgentPackage)) {
             Throw "Agent Package $AgentPackage does not exist!"
         }
     }
 }
-Function CreateOrCleanWorkingDirectory([string] $WorkingDir, [switch] $Clean)
+Function CreateOrCleanWorkingDirectory([string] $WorkingDir, [bool] $Clean)
 {
     # Create / Clean Working Directory
     $WorkingDir = Remove-QuotesFromPath($WorkingDir)
-    if ((Test-Path -Path $WorkingDir) -and ($Clean.IsPresent))
+    if ((Test-Path -Path $WorkingDir) -and ($Clean))
     {
         #Cleanup
+        Write-Output "Cleaning $WorkingDir..."
         Remove-Item -Path "$WorkingDir\*" -Recurse -Force | Out-Null
     }
     if (!(Test-Path -Path $WorkingDir))
@@ -70,7 +73,7 @@ Function CreateOrCleanWorkingDirectory([string] $WorkingDir, [switch] $Clean)
 #region Main Script
 
 # Clean Working Directory
-CreateOrCleanWorkingDirectory $WorkingDir $Clean
+CreateOrCleanWorkingDirectory $WorkingDir $Clean.IsPresent
 
 # Validate Input Parameters 
 [string] $DockerFile = [string]::Empty
@@ -86,24 +89,25 @@ if (![string]::IsNullOrEmpty($AgentPackage)) {
     Expand-Archive -Path $AgentPackage -DestinationPath $WorkingDir
     if ($AgentPackage -match "vsts-agent-win-x64-(\d+.\d+.\d+)") {
         $agentVersion = $matches[1]
-        $AgentImage = "{0}-{1}" -f $AgentImage, $agentVersion
+        $Tag = "{0}-{1}" -f $Tag, $agentVersion
     }
 }
 
 # Build Agent Base Image
-try {
-    Push-Location $WorkingDir
-    Write-Output "Building $AgentImage Image from $BaseImage..."
-    Docker build --build-arg BASE=$BaseImage -t $AgentImage -f $DockerFile . 
-    if ($PushImage.IsPresent)
-    {
-        Write-Output "Pushing Image $($AgentImage)"
-        Docker push $AgentImage
+if ($BuildAndPushImage.IsPresent) {
+    try {
+        Push-Location $WorkingDir
+        [string] $t = "{0}:{1}" -f $AgentRepository, $Tag
+        Write-Output "Building $t Image from $BaseImage..."
+        Docker build --build-arg BASE=$BaseImage -t $t -f $DockerFile . 
+        Write-Output "Pushing Image $($t)"
+        Docker push $t
     }
-}
-finally {
-    Pop-Location
+    finally {
+        Pop-Location
+    }
 }
 
 Write-Output "Done building image $AgentImage"
+return $Tag
 #endregion
