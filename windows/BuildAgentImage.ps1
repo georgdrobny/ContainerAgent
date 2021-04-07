@@ -59,7 +59,7 @@ Function CreateOrCleanWorkingDirectory([string] $WorkingDir, [bool] $Clean)
     if ((Test-Path -Path $WorkingDir) -and ($Clean))
     {
         #Cleanup
-        Write-Output "Cleaning $WorkingDir..."
+        Write-Host "Cleaning $WorkingDir..."
         Remove-Item -Path "$WorkingDir\*" -Recurse -Force | Out-Null
     }
     if (!(Test-Path -Path $WorkingDir))
@@ -98,9 +98,9 @@ if ($BuildAndPushImage.IsPresent) {
     try {
         Push-Location $WorkingDir
         [string] $t = "{0}:{1}" -f $AgentRepository, $Tag
-        Write-Output "Building $t Image from $BaseImage..."
+        Write-Host "Building $t Image from $BaseImage..."
         Docker build --build-arg BASE=$BaseImage -t $t -f $DockerFile . 
-        Write-Output "Pushing Image $($t)"
+        Write-Host "Pushing Image $($t)"
         Docker push $t
     }
     finally {
@@ -108,6 +108,6 @@ if ($BuildAndPushImage.IsPresent) {
     }
 }
 
-Write-Output "Done building image $AgentImage"
+Write-Host "Done building image $AgentImage"
 return $Tag
 #endregion
