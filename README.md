@@ -17,17 +17,19 @@ For Windows you can create a Container Image based on:
 >* .NET Framwework Targeting Packs
 >* ASP.NET Web Targets 
 
-### Create Visual Studio Base Image (Optional)
->The [microsoft/dotnet-framework-sdk](https://hub.docker.com/_/microsoft-dotnet-framework-sdk/) has **Visual Studio Build Tools** already pre-installed. If that's sufficient for you you skip his step,
+### Create an Azure Pipelines Agent Image with Visual Studio pre-installed
+>The [microsoft/dotnet-framework-sdk](https://hub.docker.com/_/microsoft-dotnet-framework-sdk/) has **Visual Studio Build Tools** already pre-installed. If that's sufficient for you see **Create an Azure Pipelines Agent Image** below.
 
-If you need to have Visual Studio in your Azure Pipelines agent image, you can build a base image with Visual Studio 2019/2017 Enterprise/Professional installed in the image.
+If you need to have Visual Studio in your Azure Pipelines agent image, you can build a Azure Pipelines container image with Visual Studio 2019/2017 Enterprise/Professional installed in the image.
 
-To build the base image, a YAML pipeline is included in this repo. See [build-VSImage.yml](build-VSImage.yml)
+To build the image, a YAML pipeline is included in this repo. See [build-VSImage.yml](build-VSImage.yml)
 The pipeline can build either a **Visual Studio 2017 or 2019** image. You can choose between **Professional and Entreprise** Edition. Which Visual Studio components are installed in the base base is defined in the dockerfiles provided in this repo. You can customize it for your needs. 
 * [VS2017 Enterprise Dockerfile](windows/VS2017Container/Dockerfile.Enterprise) 
 * [VS2017 Professional Dockerfile](windows/VS2017Container/Dockerfile.Professional) 
 * [VS2019 Enterprise Dockerfile](windows/VS2019Container/Dockerfile.Enterprise) 
 * [VS2019 Professional Dockerfile](windows/VS2019Container/Dockerfile.Professional) 
+
+The dockerfiles provided with this repo will create a ready to use Azure Pipelines Agent container image with Visual Studio pre-installed. The agent binaries will always be downloaded then the agent container instance starts.
 
 ### Create an Azure Pipelines Agent Image
 You can create an agent image with a specific version of the  Azure Pipelines Agent or without any agent. If you dont provide a specific version of the Azure Pipeline Agent, the default behaviour is the container will try to download the latest version of the agent based on the configured Azure DevOps Organization / Collection.
@@ -69,13 +71,7 @@ See the following examples on how to use the script. (You need to change to **.\
 
    This creates a new container image named **pipeline-agent:windows-2.184.2** on your local machine. The  resulting image is based on the default [microsoft/dotnet-framework-sdk](https://hub.docker.com/_/microsoft-dotnet-framework-sdk/) image.
 
-- Example 3: Build a new Azure Pipelines Agent container with a specific Azure Pipelines Agent version pre-installed based on a Visual Studio 2019 base image. (See **Step1** on how to donwload a specific Azure Pipelines Agent version and **Create Visual Studio Base Image** on how to create a base image with Visual Studio pre-installed.)
-
-   ```.\BuildAgentImage.ps1 -AgentPackage C:\Agent\vsts-agent-win-x64-2.184.2.zip -BaseImage vs2019-professional -BuildImage ```
-
-   This creates a new container image named **pipeline-agent:windows-2.184.2** on your local machine. The resulting image is based on the provided **Visual Studio 2019 Professional** image.
-
-> Instead of building the images locally you can use the provided YAML [build-AgentImage-Windows.yml](build-AgentImage-Windows.yml) pipelie to automatically build and publish your Azure Pipelines Agent image.
+> Instead of building the images locally you can use the provided YAML pipeline [build-AgentImage-Windows.yml](build-AgentImage-Windows.yml) to automatically build and publish your Azure Pipelines Agent image.
 
 ### Running instances of the Azure Pipelines Container Agent
 
@@ -112,7 +108,7 @@ See the following examples on how to use the script. (You need to change to **.\
    This command deploys an Auzure Pipelines Agent tp the default Kubernetes cluster context. The script creates a Kubernetes Secret named **azdevops** which contains the URL to the Azure DevOps Organization / Collection and the personal access tolen. The provided deployment manifest [pipelineagent_BuildTools.yml](windows/pipelineagent_BuildTools.yml) contains a sample deployment as a Stateful Set with 1 replica and a container image stored in an Azure Container Registry. The Azure Pipelines pool is **Container**.
 
    The pods are registered with a **RunOnce** flag (defined in the deployment manifest) which will terminate the agent instance after running one job. The Kubernetes scheduler will restart the pod after it terminates to get a fresh instance of the container.
-      
+
 
 
  
