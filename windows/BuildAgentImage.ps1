@@ -13,7 +13,7 @@ Param(
     [Parameter(ParameterSetName = 'Container')]
     [string] $Tag = 'windows',
     [Parameter(ParameterSetName = 'Container')]
-    [switch] $BuildAndPushImage,
+    [switch] $BuildImage,
     [Parameter()]
     [switch] $Clean
 )
@@ -29,7 +29,7 @@ Function Remove-QuotesFromPath([string] $Path)
 Function ValidateParameters()
 {
     # Docker Installed?
-    if ($null -eq (Get-Command Docker))
+    if (($BuildImage.IsPresent) -and ($null -eq (Get-Command Docker)))
     {
         Throw "Docker for Windows is not installed!"
     }
@@ -96,14 +96,12 @@ if (!([string]::IsNullOrEmpty($AgentPackage)) -and ($AgentPackage -ne 'none')) {
 }
 
 # Build Agent Base Image
-if ($BuildAndPushImage.IsPresent) {
+if ($BuildImage.IsPresent) {
     try {
         Push-Location $WorkingDir
         [string] $t = "{0}:{1}" -f $AgentRepository, $Tag
         Write-Host "Building $t Image from $BaseImage..."
         Docker build --build-arg BASE=$BaseImage -t $t -f $DockerFile . 
-        Write-Host "Pushing Image $($t)"
-        Docker push $t
     }
     finally {
         Pop-Location

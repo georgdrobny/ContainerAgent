@@ -1,122 +1,118 @@
 # Container Agent
-Tools for creating a "containerized" Build/Release agent for Azure DevOps / Azure DevOps Server 
-
+Tools for creating a "containerized" Azure Pipelines agent for Azure DevOps Services / Azure DevOps Server 
+The tools available in this repository are designed to build a container image for **Windows** or **Linux**.
 ## Windows
-On Windows you can create a Container Image based on:
+For Windows you can create a Container Image based on:
 
-* Base Image with Visual Studio 2017 preinstalled (See Instructions below)
+* Image with Visual Studio 2017/2019 preinstalled 
 * Any publically available image like
     * [microsoft/dotnet](https://hub.docker.com/r/microsoft/dotnet/) 
-    * [microsoft/dotnet-framework-sdk](https://hub.docker.com/r/microsoft/dotnet-framework/)
+    * [microsoft/dotnet-framework-sdk](https://hub.docker.com/_/microsoft-dotnet-framework-sdk/)
 
-> If you do not need Visual Studio 2017 in your base image you can skip the next task.
->
-> If you want to install Visual Studio 2017 Build Tools into a container image see [here](https://docs.microsoft.com/en-us/visualstudio/install/build-tools-container?view=vs-2017) 
+>  [microsoft/dotnet-framework-sdk](https://hub.docker.com/_/microsoft-dotnet-framework-sdk/) has the following components in the image:
+>* .NET Framework Runtime
+>* Visual Studio Build Tools
+>* Visual Studio Test Agent
+>* NuGET CLI
+>* .NET Framwework Targeting Packs
+>* ASP.NET Web Targets 
 
-### Prepare a Visual Studio 2017 Base Image
-[See also](https://docs.microsoft.com/en-us/visualstudio/install/install-vs-inconsistent-quality-network)
+### Create Visual Studio Base Image (Optional)
+>The [microsoft/dotnet-framework-sdk](https://hub.docker.com/_/microsoft-dotnet-framework-sdk/) has **Visual Studio Build Tools** already pre-installed. If that's sufficient for you you skip his step,
 
-#### Step 1 - Create a local install cache
+If you need to have Visual Studio in your Azure Pipelines agent image, you can build a base image with Visual Studio 2019/2017 Enterprise/Professional installed in the image.
 
-You must have an internet connection to complete this step. To create a local layout, open a PowerShell console and run the provided script like below:
+To build the base image, a YAML pipeline is included in this repo. See [build-VSImage.yml](build-VSImage.yml)
+The pipeline can build either a **Visual Studio 2017 or 2019** image. You can choose between **Professional and Entreprise** Edition. Which Visual Studio components are installed in the base base is defined in the dockerfiles provided in this repo. You can customize it for your needs. 
+* [VS2017 Enterprise Dockerfile](windows/VS2017Container/Dockerfile.Enterprise) 
+* [VS2017 Professional Dockerfile](windows/VS2017Container/Dockerfile.Professional) 
+* [VS2019 Enterprise Dockerfile](windows/VS2019Container/Dockerfile.Enterprise) 
+* [VS2019 Professional Dockerfile](windows/VS2019Container/Dockerfile.Professional) 
 
-```PrepareVS2017Layout.ps1 -SKU 'SKU' -Language 'Lang' -LayoutPath 'Path'```
+### Create an Azure Pipelines Agent Image
+You can create an agent image with a specific version of the  Azure Pipelines Agent or without any agent. If you dont provide a specific version of the Azure Pipeline Agent, the default behaviour is the container will try to download the latest version of the agent based on the configured Azure DevOps Organization / Collection.
 
-* SKU = 'Community', 'Professional', 'Enterprise' (Default: **'Enterprise'**)
-* Language = See list of locales below on this page (Default: **'en-US'**)
-* LayoutPath = Path to the Layout Folder (Default: **'C:\VS2017Install'**)
+#### **Step 1 - Download Azure Pipelines Agent Binaries (Optional)**
+If you need to pre-install a specific version of the agent into the container image you need to donload the necassary version of the agent binaries first.
 
->If you run the script without any parameters it will use the default as listed above.
-
-Example Usage:
-
-```.\PrepareVS2017Layout.ps1 -SKU Enterprise -Language 'de-DE' -LayoutPath C:\VS2017Layout```
-
-If you want to install a language other than English, pass a locale from the list below on this page. Use this [list of the components and workloads available](https://docs.microsoft.com/en-us/visualstudio/install/workload-and-component-ids?view=vs-2017) to further customize your installation cache as necessary.
-
->[IMPORTANT]
->A complete Visual Studio 2017 layout requires at least 35 GB of disk space and can take some time to download. See [Use command-line parameters to install Visual Studio 2017](https://docs.microsoft.com/en-us/visualstudio/install/use-command-line-parameters-to-install-visual-studio?view=vs-2017) for information on how to create a layout with only the components you want to install.
-
-##### List of language locales
-
-| **Language-locale** | **Language** |
-| ----------------------- | --------------- |
-| cs-CZ | Czech |
-| de-DE | German |
-| en-US | English |
-| es-ES | Spanish |
-| fr-FR | French |
-| it-IT | Italian |
-| ja-JP | Japanese |
-| ko-KR | Korean |
-| pl-PL | Polish |
-| pt-BR | Portuguese - Brazil |
-| ru-RU | Russian |
-| tr-TR | Turkish |
-| zh-CN | Chinese - Simplified |
-| zh-TW | Chinese - Traditional |
-
-#### Step 2 - Install Visual Studio from the local cache into a Container
->When you run from a local install cache, setup uses the local versions of each of these files. But if you select components during installation that aren't in the cache, we attempt to download them from the internet.
-
-To ensure that you only install the files you've downloaded, use the same command-line options that you used to create the layout cache. You can use the provided script
-
-```InstallVS2017Layout.ps1 -LayoutPath 'Path'```
-
-* LayoutPath = Path to the Layout Folder (Default: **'C:\VS2017Install'**)
-
->For convenience you can copy the script into the offline layout folder.
-
-- Launch a new container with the local cache mounted as a volume
-
-   ```docker run -it -v C:/VS2017Install/:C:/VS2017Install microsoft/dotnet-framework:4.7.2-sdk PowerShell```
-- In the container PowerShell prompt run the following command:
-
-   ```C:\VS2017Install\InstallVS2017Layout.ps1 -LayoutPath C:\VS2017Install```
-
-> This can take up to 20 minutes depending on your infrastructure.
-
-> If you get an error that a signature is invalid, you must install updated certificates. Open the Certificates folder in your offline cache. Double-click each of the certificate files, and then click through the Certificate Manager wizard. If asked for a password, leave it blank.
-
-- Once the setup is finished, exit from the container by entering `exit` in the PowerShell console.
-- Commit the image by runnig `docker commit <containerid> -t tfs/visualstudio:15.7.4 -t tfs/visualstudio:latest`
-
-> 15.7.4 is an example for a specific version tag. You can also use 'latest' as a tag.
-
-> This will take a **lot of time** as the file system changes would need to be commited. Depending on your infrastructure it can be round 20-30 minutes.
-> I'm currently working on a Dockerfile automate this process!
-
-After you created the Visual Studio 2017 Base Image you can process with next step.
-
-### Create a Build/Release Agent Image
-
-#### Step 1 - Download Agent Binaries 
-You can find the releases for the agent [here](https://github.com/Microsoft/vsts-agent/releases)
+You can find the releases for the Azure Pipelines Agent [here](https://github.com/Microsoft/vsts-agent/releases)
 In the example below we can use Powershell the download the agent binaries.
 
-```Invoke-WebRequest https://vstsagentpackage.azureedge.net/agent/2.134.2/vsts-agent-win-x64-2.134.2.zip -Outfile C:\Agent\vsts-agent-win-x64-2.134.2.zip```
+```Invoke-WebRequest https://vstsagentpackage.azureedge.net/agent/2.184.2/vsts-agent-win-x64-2.184.2.zip -Outfile C:\Agent\vsts-agent-win-x64-2.184.2.zip```
 
-#### Step 2 - Build Agent Image
-You can build the agent image based on the binaries you downloaded in Step 1 and and a base image like **Visual Studio 2017**, [microsoft/dotnet](https://hub.docker.com/r/microsoft/dotnet/) or [microsoft/dotnet-framework-sdk(https://hub.docker.com/r/microsoft/dotnet-framework/) using the provided script
->BuildAgentImage.ps1
+For your convenience you can download the supported Azure Pipelines Agent for your Azure DevOps Organization / Collection with the provided PowerShell script. 
+>[DownloadAgent.ps1](windows/DownloadAgent.ps1)
 
-See the following example on how to use the script.
+See the following example on how to use the script. (You need to change to **.\windows** directory first)
 
-- Build a new container image (default image name is tfs/buildagent:AgentVersion)
+```$package = .\DownloadAgent.ps1 -AzureDevOpsOrganization https://dev.azure.com/<org> -AzureDevOpsPersonalAccessToken <pat> -DestinationDirectory C:\Agent```
 
-   ```.\BuildAgentImage.ps1 -AgentPathZip C:\Agent\vsts-agent-win-x64-2.134.2.zip -WorkingDir C:\Temp -Dockerfile .\Dockerfile  ```
+The script will download the agent and store the package zip in the destitnation folder. the script will return the full path to the downloaded package file and you can store it in a PowerShell variable for later use.
 
-   This creates a new container image named **tfs/buildagent:2.134.2** and also applies the **latest** tag. The resulting image is based on the default Visual Studio 2017 Image **tfs/visualstudio2017:latest** created in the previous task.
+#### **Step 2 - Build Azure Pipelines Agent Image**
+You can build the Azure Pipelines Agent image based on the binaries you downloaded in Step 1 and a base image like **Visual Studio** or [microsoft/dotnet-framework-sdk](https://hub.docker.com/_/microsoft-dotnet-framework-sdk/) using the provided script
+>[BuildAgentImage.ps1](windows/BuildAgentImage.ps1)
 
-### Running an instance of the Container Agent
+See the following examples on how to use the script. (You need to change to **.\windows** directory first)
 
-You can any number of instances to any *VSTS Account / TFS Instance* by using the provided script
->RunContainerAgent.ps1
+**Requires Docker for Windows on you local machine!**
 
-- The example below runs an agent instance against a *TFS Instance* using *username/password* passed in as `[pscredential]`
+- Example 1: Build a new Azure Pipelines Agent container image based on the default base image without agent binaries pre-installed. 
 
-    ```$cred = Get-Crendential | .\RunContainerAgent.ps1 -TFSUrl 'http://mytfs.com:8080/tfs' -AgentName 'Agent1'```
+   ```.\BuildAgentImage.ps1 -BuildImage```
 
-- The example below runs an agent instance against a *VSTS Instance* using *PersonalAccessToken* 
+   This creates a new container image named **pipeline-agent:windows** on your local machine. The resulting image is based on the default [microsoft/dotnet-framework-sdk](https://hub.docker.com/_/microsoft-dotnet-framework-sdk/) image.
 
-    ```.\RunContainerAgent.ps1 -TFSUrl 'https://myvsts.visualstudio.com' -PersonalAccessToken <token> -AgentName 'Agent1'```
+- Example 2: Build a new Azure Pipelines Agent container with a specific Azure Pipelines Agent version pre-installed. (See **Step1** on how to donwload a specific Azure Pipelines Agent version)
+
+   ```.\BuildAgentImage.ps1 -AgentPackage C:\Agent\vsts-agent-win-x64-2.184.2.zip -BuildImage ```
+
+   This creates a new container image named **pipeline-agent:windows-2.184.2** on your local machine. The  resulting image is based on the default [microsoft/dotnet-framework-sdk](https://hub.docker.com/_/microsoft-dotnet-framework-sdk/) image.
+
+- Example 3: Build a new Azure Pipelines Agent container with a specific Azure Pipelines Agent version pre-installed based on a Visual Studio 2019 base image. (See **Step1** on how to donwload a specific Azure Pipelines Agent version and **Create Visual Studio Base Image** on how to create a base image with Visual Studio pre-installed.)
+
+   ```.\BuildAgentImage.ps1 -AgentPackage C:\Agent\vsts-agent-win-x64-2.184.2.zip -BaseImage vs2019-professional -BuildImage ```
+
+   This creates a new container image named **pipeline-agent:windows-2.184.2** on your local machine. The resulting image is based on the provided **Visual Studio 2019 Professional** image.
+
+> Instead of building the images locally you can use the provided YAML [build-AgentImage-Windows.yml](build-AgentImage-Windows.yml) pipelie to automatically build and publish your Azure Pipelines Agent image.
+
+### Running instances of the Azure Pipelines Container Agent
+
+You can run any number of instances to any Azure DevOps Organization / Collection by using the provided script
+>[RunContainerAgent.ps1](windows/RunContainerAgent.ps1)
+
+See the following examples on how to use the script. (You need to change to **.\windows** directory first)
+
+- Example 1: Run an Azure Pipelines Agent container instance against an Azure DevOps organization
+
+    ```.\RunContainerAgent.ps1 -AzureDevOpsOrg 'https://dev.azure.com/<org>' -PersonalAccessToken <pat> -AgentName 'Agent1' -ImageName pipeline-agent:windows```
+
+    This command creates a container instance of an Azure Pipelines Agent locally. The instance will register itself at **https://dev.azure.com/org** in an agent pool named **Container** with the Agent Name of **Agent1** It will run continously.
+
+- Example 2: Run an Azure Pipelines Agent container instance against an Azure DevOps Server Collection
+
+    ```.\RunContainerAgent.ps1  -AzureDevOpsOrg 'https://tfs.drobny.net/DefaultCollection' -PersonalAccessToken <pat> -AgentName 'Agent1' -PoolName Default -ImageName pipeline-agent:windows-2.184.2```
+
+    This This command creates a container instance of an Azure Pipelines Agent locally. The instance will register itself at **https://tfs.drobny.net/DefaultCollection** in an agent pool named **Default** with the Agent Name of **Agent1**. It will run continously.
+>NOTE: The personal access token provided needs to have permission to register an agent. The agent pool (Default:**Container**) needs to exist before running the container instance.
+### Running instances of the Azure Pipelines Container Agent in Kubernetes
+You can run the Azure Pipelines Container Agent in any Kubernetes Cluster (Bare Metal, AKS, Rancher, OKD) by using the provided script.
+>[DeployAgentToAks.ps1](windows/DeployAgentToAks.ps1)
+The script is using **kubectl** to deploy an Azure Pipelines Agent to Kubernetes. 
+
+>NOTE: To run an instance of the Windows Azure Pipelines Container Agent you need to have an mixed mode Kuberetes Cluster with **Windows Worker Nodes** (NodePool) running. The machines in the node pool need to run **Windows Server 2019** or later.  
+
+See the following examples on how to use the script. (You need to change to **.\windows** directory first)
+
+- Example 1: Deploy an Azure Pipelines Agent to a Kuberntetes Cluster
+
+   ```.\DeployAgentToAks.ps1 -AzureDevOpsOrganization 'https://dev.azure.com/<org>' -AzureDevOpsPersonalAccessToken <pat> -DeploymentFile .\pipelineagent_BuildTools.yml```
+
+   This command deploys an Auzure Pipelines Agent tp the default Kubernetes cluster context. The script creates a Kubernetes Secret named **azdevops** which contains the URL to the Azure DevOps Organization / Collection and the personal access tolen. The provided deployment manifest [pipelineagent_BuildTools.yml](windows/pipelineagent_BuildTools.yml) contains a sample deployment as a Stateful Set with 1 replica and a container image stored in an Azure Container Registry. The Azure Pipelines pool is **Container**.
+
+   The pods are registered with a **RunOnce** flag (defined in the deployment manifest) which will terminate the agent instance after running one job. The Kubernetes scheduler will restart the pod after it terminates to get a fresh instance of the container.
+      
+
+
+ 
