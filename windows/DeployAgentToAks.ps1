@@ -14,7 +14,7 @@ if (!(Test-Path -Path $DeploymentFile)) {
     exit 1
 }
 
-if (![string]::IsNullOrEmpty($AzureDevopsOrganization)) {
+if (![string]::IsNullOrEmpty($AzureDevopsOrganization) -and ![string]::IsNullOrEmpty($AzureDevopsPersonalAccessToken)) {
     kubectl create secret generic azdevops `
         --from-literal=azp_url=$AzureDevopsOrganization `
         --from-literal=azp_token=$AzureDevopsPersonalAccessToken
