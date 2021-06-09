@@ -5,31 +5,51 @@ parameters:
   displayName: Download and Install Latest Pipeline Agent
   type: boolean
   default: False
- 
+
+variables:
+  baseImageName: 'mcr.microsoft.com/dotnet/framework/sdk:4.8-windowsservercore-ltsc2019'
+  imageRepository: 'pipeline-agent'
+  containerRegistry: 'containeragent'
+  sourceDir : '$(build.SourcesDirectory)\\windows\\'
+  workingDir : '$(build.ArtifactStagingDirectory)\\agent\\'
+  dockerfilePath: '$(build.ArtifactStagingDirectory)\\agent\\Dockerfile'
+  download: $[${{ parameters.DownloadAgent }}]
+  agentPackage: 'none'
+  tag: 'windows'
+  vmImageName: 'windows-2019'
+
 jobs:
 - job: 'BuildAgentImage'
   timeoutInMinutes: 90
 
   pool:
-    vmImage: 'windows-latest'
-
-  variables:
-    baseImageName: 'mcr.microsoft.com/dotnet/framework/sdk:4.8-windowsservercore-ltsc2019'
-    imageName: 'containeragent.azurecr.io/pipeline-agent:windows'
-    sourceDir : '$(build.SourcesDirectory)\\windows\\'
-    workingDir : '$(build.ArtifactStagingDirectory)\\agent\\'
-    download: $[${{ parameters.DownloadAgent }}]
-    agentPackage: ''
+    vmImage: $(vmImageName)
 
   steps:
   - powershell: |
      $package = windows/DownloadAgent.ps1 -AzureDevOpsOrganization $(AzureDevOpsOrganization) -AzureDevOpsPersonalAccessToken $(AzureDevOpsToken) -DestinationDirectory $(Build.ArtifactStagingDirectory)
      Write-Host "##vso[task.setvariable variable=agentPackage]$package"
     condition: eq(variables.download,true) 
-  - task: Docker@2
-    inputs:
-      containerRegistry: 'containeragent'
-      command: 'login'
+    displayName: 'Download Agent Package'
   - powershell: |
-      windows/BuildAgentImage.ps1 -WorkingDir $(workingDir) -SourceDir $(sourceDir) -BaseImage $(baseImageName) -AgentImage $(imageName) -PushImage -AgentPackage $(agentPackage)
+     $tag = windows/BuildAgentImage.ps1 -WorkingDir $(workingDir) -SourceDir $(sourceDir) -AgentPackage $(agentPackage)
+     Write-Host "##vso[task.setvariable variable=tag]$tag"
+  - task: Docker@2
+    displayName: Build Windows Pipeline Agent Image
+    inputs:
+      containerRegistry: '$(containerRegistry)'
+      repository: '$(imageRepository)'
+      command: 'build'
+      Dockerfile: $(dockerfilePath)
+      tags: '$(tag)'
+      arguments: '--build-arg BASE=$(baseImageName)'
+  - task: Docker@2
+    displayName: Push Windows Pipeline Agent Image
+    inputs:
+      containerRegistry: $(containerRegistry)
+      repository: '$(imageRepository)'
+      command: 'push'
+      tags: '$(tag)'
+      addPipelineData: true
+      
       

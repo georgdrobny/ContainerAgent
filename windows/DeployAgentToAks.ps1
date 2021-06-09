@@ -1,7 +1,8 @@
 param(
     [string] $AzureDevopsOrganization,
     [string] $AzureDevopsPersonalAccessToken,
-    [string] $DeploymentFile = '.\pipelineagent_BuildTools.yml'
+    [string] $DeploymentFile = '.\pipelineagent_BuildTools.yml',
+    [string] $RepoTag = 'windows'
 )
 
 if ($null -eq (Get-Command -name kubectl )) {
@@ -20,4 +21,10 @@ if (![string]::IsNullOrEmpty($AzureDevopsOrganization) -and ![string]::IsNullOrE
         --from-literal=azp_token=$AzureDevopsPersonalAccessToken
 }
 
-kubectl apply -f $DeploymentFile
+if ($RepoTag -ne 'windows') {
+    (Get-Content $DeploymentFile) -replace ":windows", ":$RepoTag" | kubectl apply -f -
+}
+else {
+    kubectl apply -f $DeploymentFile    
+}
+

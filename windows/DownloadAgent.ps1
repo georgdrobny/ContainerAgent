@@ -5,8 +5,7 @@ param(
     [Parameter(Mandatory=$true)]
     [string] $AzureDevopsPersonalAccessToken,
     [Parameter(Mandatory=$true)]
-    [string] $DestinationDirectory,
-    [string] $AgentVersion
+    [string] $DestinationDirectory
 )
 
 [string] $base64AuthInfo = [Convert]::ToBase64String([Text.Encoding]::ASCII.GetBytes(("{0}:{1}" -f "", $AzureDevopsPersonalAccessToken)))
