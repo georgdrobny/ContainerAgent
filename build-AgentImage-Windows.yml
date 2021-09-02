@@ -41,6 +41,7 @@ jobs:
     condition: eq(variables.download,true) 
     displayName: 'Download Agent Package'
   - powershell: |
+     $psVersionTable
      $tag = windows/BuildAgentImage.ps1 -WorkingDir $(workingDir) -SourceDir $(sourceDir) -AgentPackage $(agentPackage)
      Write-Host "##vso[task.setvariable variable=tag]$tag"
   - task: Docker@2
