@@ -24,7 +24,7 @@ variables:
   download: $[${{ parameters.DownloadAgent }}]
   agentPackage: 'none'
   tag: 'windows'
-  vmImageName: '$[${{ parameters.AgentImage }}]'
+  vmImageName: $[${{ parameters.AgentImage }}]
 
 jobs:
 - job: 'BuildAgentImage'
