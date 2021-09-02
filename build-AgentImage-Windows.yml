@@ -6,13 +6,13 @@ parameters:
   type: boolean
   default: False
 
-- name: AgentImage
-  displayName: Pipeline Agent Image
-  type: string
-  default: windows-2019
-  values:
-    - windows-2019
-    - windows-2022
+# - name: AgentImage
+#   displayName: Pipeline Agent Image
+#   type: string
+#   default: windows-2019
+#   values:
+#     - windows-2019
+#     - windows-2022
 
 variables:
   baseImageName: 'mcr.microsoft.com/dotnet/framework/sdk:4.8-windowsservercore-ltsc2019'
@@ -33,7 +33,8 @@ jobs:
 
   pool:
     # vmImage: $(vmImageName)
-    vmImage: ${{ parameters.AgentImage }}
+    # vmImage: ${{ parameters.AgentImage }}
+   name: 'Win2022'
 
   steps:
   - powershell: |
