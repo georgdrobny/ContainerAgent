@@ -24,14 +24,15 @@ variables:
   download: $[${{ parameters.DownloadAgent }}]
   agentPackage: 'none'
   tag: 'windows'
-  vmImageName: $[${{ parameters.AgentImage }}]
+  # vmImageName: $[${{ parameters.AgentImage }}]
+  vmImageName: 'windows-2022'
 
 jobs:
 - job: 'BuildAgentImage'
   timeoutInMinutes: 90
 
   pool:
-    vmImage: '$(vmImageName)'
+    vmImage: $(vmImageName)
 
   steps:
   - powershell: |
