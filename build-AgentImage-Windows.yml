@@ -33,7 +33,7 @@ jobs:
 
   pool:
     # vmImage: $(vmImageName)
-    vmImage: $[${{ parameters.AgentImage }}]
+    vmImage: {{ parameters.AgentImage }}
 
   steps:
   - powershell: |
