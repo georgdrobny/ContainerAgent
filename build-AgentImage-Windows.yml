@@ -32,7 +32,8 @@ jobs:
   timeoutInMinutes: 90
 
   pool:
-    vmImage: $(vmImageName)
+    # vmImage: $(vmImageName)
+    vmImage: $[${{ parameters.AgentImage }}]
 
   steps:
   - powershell: |
