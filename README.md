@@ -73,7 +73,7 @@ See the following examples on how to use the script. (You need to change to **.\
 
 > Instead of building the images locally you can use the provided YAML pipeline [build-AgentImage-Windows.yml](build-AgentImage-Windows.yml) to automatically build and publish your Azure Pipelines Agent image.
 
-### Running instances of the Azure Pipelines Container Agent
+### Running instances of the Azure Pipelines Container Agent in Docker
 
 You can run any number of instances to any Azure DevOps Organization / Collection by using the provided script
 >[RunContainerAgent.ps1](windows/RunContainerAgent.ps1)
@@ -109,6 +109,16 @@ See the following examples on how to use the script. (You need to change to **.\
 
    The pods are registered with a **RunOnce** flag (defined in the deployment manifest) which will terminate the agent instance after running one job. The Kubernetes scheduler will restart the pod after it terminates to get a fresh instance of the container.
 
+#### Autoscaling Azure Pipelines Container Agent with KEDA
+If you run your Azure Pipelines Container in Kubernetes, you scale the number of Agents dynamically based on the number of requests waiting in associated Pool/Queue by using [KEDA](https://keda.sh/).
 
+Deploy KEDA to your Kuberntes Cluster based on your preferred Method. 
 
+- Example Deploying KEDA with a manifest
+
+    ```kubectl apply -f https://github.com/kedacore/keda/releases/download/v2.4.0/keda-2.4.0.yaml```
+
+- Example running Azure Pipelines Container Agent with Autoscaling
+    [pipelineagent_BuildTools_Autoscale.yml](windows/pipelineagent_BuildTools_Autoscale.yml)
+You need to run [DeployAgentToAks.ps1](windows/DeployAgentToAks.ps1) to deploy the agent to Kubernetes Cluster. The script automatically gets the Pool-ID from the Poolname and then replaces it in the deployment manifest and run the deployment. 
  
