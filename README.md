@@ -119,6 +119,8 @@ Deploy KEDA to your Kuberntes Cluster based on your preferred Method.
     ```kubectl apply -f https://github.com/kedacore/keda/releases/download/v2.4.0/keda-2.4.0.yaml```
 
 - Example running Azure Pipelines Container Agent with Autoscaling
-    [pipelineagent_BuildTools_Autoscale.yml](windows/pipelineagent_BuildTools_Autoscale.yml)
-You need to run [DeployAgentToAks.ps1](windows/DeployAgentToAks.ps1) to deploy the agent to Kubernetes Cluster. The script automatically gets the Pool-ID from the Poolname and then replaces it in the deployment manifest and run the deployment. 
+ 
+>[pipelineagent_BuildTools_Autoscale.yml](windows/pipelineagent_BuildTools_Autoscale.yml)
+
+You need to run [DeployAgentToAks.ps1](windows/DeployAgentToAks.ps1) to deploy the agent to your Kubernetes Cluster. The script automatically gets the Pool-ID from the passed Pool-Name and then replaces it in the deployment manifest and apply the deployment. 
  
