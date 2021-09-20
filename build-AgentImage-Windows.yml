@@ -6,6 +6,14 @@ parameters:
   type: boolean
   default: False
 
+- name: AgentImage
+  displayName: Pipeline Agent Image
+  type: string
+  default: windows-2019
+  values:
+    - windows-2019
+    - windows-2022
+
 variables:
   baseImageName: 'mcr.microsoft.com/dotnet/framework/sdk:4.8-windowsservercore-ltsc2019'
   imageRepository: 'pipeline-agent'
@@ -16,14 +24,13 @@ variables:
   download: $[${{ parameters.DownloadAgent }}]
   agentPackage: 'none'
   tag: 'windows'
-  vmImageName: 'windows-2019'
 
 jobs:
 - job: 'BuildAgentImage'
   timeoutInMinutes: 90
 
   pool:
-    vmImage: $(vmImageName)
+    vmImage: ${{ parameters.AgentImage }}
 
   steps:
   - powershell: |
@@ -32,6 +39,7 @@ jobs:
     condition: eq(variables.download,true) 
     displayName: 'Download Agent Package'
   - powershell: |
+     $psVersionTable
      $tag = windows/BuildAgentImage.ps1 -WorkingDir $(workingDir) -SourceDir $(sourceDir) -AgentPackage $(agentPackage)
      Write-Host "##vso[task.setvariable variable=tag]$tag"
   - task: Docker@2
