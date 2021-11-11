@@ -37,10 +37,24 @@ if (Test-Path .\config.cmd) {
 
 if (!$skipDownload) {
     Write-Host "Determining matching Azure Pipelines agent..." -ForegroundColor Cyan
-    $rsp = Invoke-WebRequest -uri $Uri -UseBasicParsing -Headers $AuthHeader
-    if ($rsp.StatusCode -ne 200) {
-        Write-Error "Could not determine a matching Azure Pipelines agent - check that account '$ENV:VSTS_AGENT_INPUT_URL' is correct and the token is valid for that account"
-        exit 1
+    [int] $retry = 0
+    while ($true) {
+        try {
+            $rsp = Invoke-WebRequest -uri $Uri -UseBasicParsing -Headers $AuthHeader
+            if ($rsp.StatusCode -ne 200) {
+                Write-Error "Could not determine a matching Azure Pipelines agent - check that account '$ENV:VSTS_AGENT_INPUT_URL' is correct and the token is valid for that account"
+                exit 1
+            }
+        } 
+        catch {
+            Write-Host "Failed to determine a matching Azure Pipelines agent! Retrying..."
+            $retry++
+            if ($retry -ge 3) {
+                Write-Error "Could not determine a matching Azure Pipelines agent - check that account '$ENV:VSTS_AGENT_INPUT_URL' is correct and the token is valid for that account"
+                exit 1
+            }
+            Start-Sleep -Seconds 5
+        }
     }
     
     [PSCustomObject] $agentList = ConvertFrom-Json $rsp.content;
