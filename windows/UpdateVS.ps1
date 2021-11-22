@@ -103,7 +103,7 @@ if (($null -eq $setupInstances) -or ($setupInstances.Count -eq 0)) {
 }
 # Update Visual Studio 
 foreach($setupInstance in $setupInstances) {
-    Write-Host "Starting Unattended Update of '$($setupInstance.DisplayName)'" -ForegroundColor Yellow 
+    Write-Host "Starting Unattended Update of '$($setupInstance.DisplayName)'" -ForegroundColor Green 
     [string] $InstallPath = $setupInstance.InstallationPath
     Write-Host "Downloading $($setupInstance.DisplayName) Setup Bootstrapper"
     [string] $bootstrapper = Get-Bootstapper -setupInstance $setupInstance
