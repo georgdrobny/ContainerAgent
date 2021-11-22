@@ -10,7 +10,6 @@ Param(
 }
 
 #region Internal Functions
-
 function Get-Bootstapper {
     Param(
         $setupInstance
@@ -24,6 +23,7 @@ function Get-Bootstapper {
     [string] $SKU = ($setupInstance.Product.Id -split "\.")[-1]
     [string] $bootstrapperUri = "https://aka.ms/vs/{0}/release/{1}" -f $setupInstance.InstallationVersion.Major, $skuList[$SKU]
     $bootstapperPath = Join-Path -Path $bootstapperPath -ChildPath $skuList[$SKU]
+    $ProgressPreference = 'SilentlyContinue'
     Invoke-WebRequest -UseBasicParsing -Uri $bootstrapperUri -OutFile $bootstapperPath
     return $bootstapperPath
 }
