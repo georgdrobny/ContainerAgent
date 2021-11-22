@@ -45,6 +45,7 @@ if (!$skipDownload) {
                 Write-Error "Could not determine a matching Azure Pipelines agent - check that account '$ENV:VSTS_AGENT_INPUT_URL' is correct and the token is valid for that account"
                 exit 1
             }
+            break
         } 
         catch {
             Write-Host "Failed to determine a matching Azure Pipelines agent! Retrying..."
