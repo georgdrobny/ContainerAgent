@@ -1,0 +1,34 @@
+apiVersion: keda.sh/v1alpha1
+kind: TriggerAuthentication
+metadata:
+  name: pipeline-trigger-auth
+  namespace: {{ .Values.namespace }}
+spec:
+  secretTargetRef:
+    - parameter: organizationURL
+      name: azdevops
+      key: azp_url
+    - parameter: personalAccessToken
+      name: azdevops
+      key: azp_token
+---
+apiVersion: keda.sh/v1alpha1
+kind: ScaledObject
+metadata:
+  name: agent-win-scaledobject
+  namespace: {{ .Values.namespace }}
+spec:
+  scaleTargetRef:
+    name: agent-win
+    kind: StatefulSet
+  minReplicaCount: 1
+  maxReplicaCount: 5
+  pollingInterval: 1
+  cooldownPeriod:  60
+  triggers:
+  - type: azure-pipelines
+    metadata:
+      poolID: "{{ .Values.poolId }}"
+      targetPipelinesQueueLength: "1"
+    authenticationRef:
+     name: pipeline-trigger-auth

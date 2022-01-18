@@ -1,0 +1,8 @@
+repo: containeragent.azurecr.io
+namespace: default
+tag: windows
+poolId: "1"
+azpToken: <token>
+azpUrl: <url>
+runOnce: "FALSE"
+  
