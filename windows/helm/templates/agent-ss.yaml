@@ -33,7 +33,7 @@ spec:
                 name: azdevops
                 key: azp_token
           - name: VSTS_AGENT_INPUT_POOL
-            value: 'Container'
+            value: '{{ .Values.poolName }}'
           - name: RUN_ONCE
             value: '{{ .Values.runOnce }}'
       tolerations:
