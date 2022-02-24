@@ -12,7 +12,7 @@ if [ -z "$AZP_TOKEN_FILE" ]; then
     exit 1
   fi
 
-  AZP_TOKEN_FILE=/azp/.token
+  AZP_TOKEN_FILE=/agent/.token
   echo -n $AZP_TOKEN > "$AZP_TOKEN_FILE"
 fi
 
@@ -21,16 +21,6 @@ unset AZP_TOKEN
 if [ -n "$AZP_WORK" ]; then
   mkdir -p "$AZP_WORK"
 fi
-
-if [ -f "/agent/config.sh" ]; then
-  print_header "Agent is pre-installed, skipping download..."
-  skipDownload = 1
-else
-  rm -rf /agent
-  mkdir /agent
-fi
-
-cd /agent
 
 export AGENT_ALLOW_RUNASROOT="1"
 
@@ -53,8 +43,14 @@ print_header() {
 # Let the agent ignore the token env variables
 export VSO_AGENT_IGNORE=AZP_TOKEN,AZP_TOKEN_FILE
 
+cd /agent
+if [ -e /agent/config.sh ]; then
+  print_header "Agent is pre-installed, skipping download..."
+  skipDownload=1
+fi
+
 if [ $skipDownload -eq 0 ]; then
-  print_header "1. Determining matching Azure Pipelines agent..."
+  print_header "Determining matching Azure Pipelines agent..."
 
   AZP_AGENT_RESPONSE=$(curl -LsS \
     -u user:$(cat "$AZP_TOKEN_FILE") \
@@ -71,14 +67,14 @@ if [ $skipDownload -eq 0 ]; then
     exit 1
   fi
 
-  print_header "2. Downloading and installing Azure Pipelines agent..."
+  print_header "Downloading and installing Azure Pipelines agent..."
 
   curl -LsS $AZP_AGENTPACKAGE_URL | tar -xz & wait $!
 fi
 
 source ./env.sh
 
-print_header "3. Configuring Azure Pipelines agent..."
+print_header "Configuring Azure Pipelines agent..."
 
 ./config.sh --unattended \
   --agent "${AZP_AGENT_NAME:-$(hostname)}" \
@@ -90,21 +86,15 @@ print_header "3. Configuring Azure Pipelines agent..."
   --replace \
   --acceptTeeEula & wait $!
 
-# remove the administrative token before accepting work
-# rm $AZP_TOKEN_FILE
-
-
 trap 'cleanup; exit 130' INT
 trap 'cleanup; exit 143' TERM
 
 # `exec` the node runtime so it's aware of TERM and INT signals
 # AgentService.js understands how to handle agent self-update and restart
 #exec ./externals/node/bin/node ./bin/AgentService.js interactive
-if [ $RUN_ONCE -eq 0 ]
-  print_header "4. Running Azure Pipelines agent..."
-  ./run.sh &
+if [ -z "$RUN_ONCE" ]; then
+  print_header "Running Azure Pipelines agent..." && ./run.sh &
 else
-  print_header "4. Running Azure Pipelines agent once..."
-  ./run.sh --once &
+  print_header "Running Azure Pipelines agent once..." && ./run.sh --once &
 fi
 wait $!

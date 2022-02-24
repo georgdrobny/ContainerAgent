@@ -5,7 +5,8 @@ param(
     [string] $AzureDevopsPersonalAccessToken,
     [string] $AgentImage = 'containerdemos.azurecr.io/pipeline-agent:ubuntu-18.04',
     [string] $AgentPool = 'Linux',
-    [switch] $Interactive
+    [switch] $Interactive,
+    [switch] $RunOnce
 )
 
 if ($null -eq (Get-Command -name docker )) {
@@ -13,11 +14,16 @@ if ($null -eq (Get-Command -name docker )) {
     exit 1
 }
 
+[string] $ro = [string]::Empty
+if ($RunOnce.IsPresent) {
+    $ro = "True"
+}
+
 if ($Interactive.IsPresent) {
-    docker run -it --rm -e AZP_URL=$AzureDevopsOrganization -e AZP_TOKEN=$AzureDevopsPersonalAccessToken -e AZP_POOL=$AgentPool $AgentImage
+    docker run -it --rm -e AZP_URL=$AzureDevopsOrganization -e AZP_TOKEN=$AzureDevopsPersonalAccessToken -e AZP_POOL=$AgentPool -e RUN_ONCE=$ro $AgentImage
 }
 else {
-    docker run --rm -e AZP_URL=$AzureDevopsOrganization -e AZP_TOKEN=$AzureDevopsPersonalAccessToken -e AZP_POOL=$AgentPool $AgentImage
+    docker run --rm -e AZP_URL=$AzureDevopsOrganization -e AZP_TOKEN=$AzureDevopsPersonalAccessToken -e AZP_POOL=$AgentPool -E RUN_ONCE=$ro $AgentImage
 }
 
 

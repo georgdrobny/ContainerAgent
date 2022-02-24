@@ -19,7 +19,7 @@ RUN apt-get update \
         netcat
 
 WORKDIR /agent
-COPY . ./agent
+COPY . /agent
 
 RUN chmod +x start.sh
 
