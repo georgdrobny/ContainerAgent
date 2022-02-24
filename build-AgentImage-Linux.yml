@@ -12,10 +12,10 @@ parameters:
 - name: BaseImage
   displayName: Pipeline Agent Base Image
   type: string
-  default: ubuntu:18.04
+  default: 'ubuntu:18.04'
   values:
-    - ubuntu:18.04
-    - ubuntu:20.04
+    - 'ubuntu:18.04'
+    - 'ubuntu:20.04'
 
 - name: ContainerRegistry
   displayName: Container Registry Service Connection
@@ -31,7 +31,7 @@ variables:
   workingDir : '$(build.ArtifactStagingDirectory)/agent/'
   dockerfilePath: '$(build.ArtifactStagingDirectory)/agent/Dockerfile'
   download: $[${{ parameters.DownloadAgent }}]
-  baseImageName: $[${{ parameters.BaseImage }}]
+  baseImage: $[${{ parameters.BaseImage }}]
   agentPackage: 'none'
   tag: 'ubuntu-18.04'
 
