@@ -1,18 +1,41 @@
-# Docker
-# Build and push an image to Azure Container Registry
-# https://docs.microsoft.com/azure/devops/pipelines/languages/docker
-
 trigger: none
 
 resources:
 - repo: self
 
+parameters:
+- name: DownloadAgent
+  displayName: Download and Install Latest Pipeline Agent
+  type: boolean
+  default: False
+
+- name: BaseImage
+  displayName: Pipeline Agent Base Image
+  type: string
+  default: ubuntu:18.04
+  values:
+    - ubuntu:18.04
+    - ubuntu:20.04
+
+- name: ContainerRegistry
+  displayName: Container Registry Service Connection
+  default: containeragent
+  values:
+    - containeragent
+    - gdcontaineragent
+
 variables:
+  baseImageName: 'ubuntu:18.04'
   imageRepository: 'pipeline-agent'
   containerRegistry: 'containeragent'
-  dockerfilePath: '$(Build.SourcesDirectory)/linux/Dockerfile'
+  sourceDir : '$(build.SourcesDirectory)/linux/'
+  workingDir : '$(build.ArtifactStagingDirectory)/agent/'
+  dockerfilePath: '$(build.ArtifactStagingDirectory)/agent/Dockerfile'
+  download: $[${{ parameters.DownloadAgent }}]
+  baseImage: $[${{ parameters.BaseImage }}]
+  agentPackage: 'none'
   tag: 'ubuntu-18.04'
-  
+
   # Agent VM image name
   vmImageName: 'ubuntu-latest'
 
@@ -25,12 +48,21 @@ stages:
     pool:
       vmImage: $(vmImageName)
     steps:
+    - powershell: |
+       $package = common/DownloadAgent.ps1 -AzureDevOpsOrganization $(AzureDevOpsOrganization) -AzureDevOpsPersonalAccessToken $(AzureDevOpsToken) -DestinationDirectory $(Build.ArtifactStagingDirectory)
+       Write-Host "##vso[task.setvariable variable=agentPackage]$package"
+      condition: eq(variables.download,true) 
+      displayName: 'Download Agent Package'
+    - powershell: |
+       $psVersionTable
+       $tag = $(baseImageName) -replace ":","-"
+       $tag = linux/BuildAgentImage.ps1 -WorkingDir $(workingDir) -SourceDir $(sourceDir) -AgentPackage $(agentPackage) -BaseImage $(baseImageName) -Tag $tag
+       Write-Host "##vso[task.setvariable variable=tag]$tag"
     - task: Docker@2
-      displayName: Build and push Linux Pipeline Agent Image
+      displayName: Push Windows Pipeline Agent Image
       inputs:
-        command: buildAndPush
-        repository: $(imageRepository)
-        dockerfile: $(dockerfilePath)
-        containerRegistry: '$(containerRegistry)'
-        tags: |
-          $(tag)
+        containerRegistry: ${{ parameters.ContainerRegistry }}
+        repository: '$(imageRepository)'
+        command: 'push'
+        tags: '$(tag)'
+        addPipelineData: true
