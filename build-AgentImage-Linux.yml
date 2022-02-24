@@ -25,14 +25,13 @@ parameters:
     - gdcontaineragent
 
 variables:
-  baseImageName: 'ubuntu:18.04'
   imageRepository: 'pipeline-agent'
   containerRegistry: 'containeragent'
   sourceDir : '$(build.SourcesDirectory)/linux/'
   workingDir : '$(build.ArtifactStagingDirectory)/agent/'
   dockerfilePath: '$(build.ArtifactStagingDirectory)/agent/Dockerfile'
   download: $[${{ parameters.DownloadAgent }}]
-  baseImage: $[${{ parameters.BaseImage }}]
+  baseImageName: $[${{ parameters.BaseImage }}]
   agentPackage: 'none'
   tag: 'ubuntu-18.04'
 
