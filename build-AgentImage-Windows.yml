@@ -40,12 +40,12 @@ jobs:
     vmImage: ${{ parameters.AgentImage }}
 
   steps:
-  - powershell: |
+  - pwsh: |
      $package = common/DownloadAgent.ps1 -AzureDevOpsOrganization $(AzureDevOpsOrganization) -AzureDevOpsPersonalAccessToken $(AzureDevOpsToken) -DestinationDirectory $(Build.ArtifactStagingDirectory)
      Write-Host "##vso[task.setvariable variable=agentPackage]$package"
     condition: eq(variables.download,true) 
     displayName: 'Download Agent Package'
-  - powershell: |
+  - pwsh: |
      $psVersionTable
      $tag = windows/BuildAgentImage.ps1 -WorkingDir $(workingDir) -SourceDir $(sourceDir) -AgentPackage $(agentPackage) -BaseImage $(baseImageName) -Tag $(tag)
      Write-Host "##vso[task.setvariable variable=tag]$tag"
