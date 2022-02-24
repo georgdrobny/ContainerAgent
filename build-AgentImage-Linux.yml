@@ -12,10 +12,10 @@ parameters:
 - name: BaseImage
   displayName: Pipeline Agent Base Image
   type: string
-  default: 'ubuntu:18.04'
+  default: 'ubuntu-18.04'
   values:
-    - 'ubuntu:18.04'
-    - 'ubuntu:20.04'
+    - 'ubuntu-18.04'
+    - 'ubuntu-20.04'
 
 - name: ContainerRegistry
   displayName: Container Registry Service Connection
@@ -31,11 +31,9 @@ variables:
   workingDir : '$(build.ArtifactStagingDirectory)/agent/'
   dockerfilePath: '$(build.ArtifactStagingDirectory)/agent/Dockerfile'
   download: $[${{ parameters.DownloadAgent }}]
-  baseImage: $[${{ parameters.BaseImage }}]
+  baseImageName: $[${{ parameters.BaseImage }}]
+  tag:  $[${{ parameters.BaseImage }}]
   agentPackage: 'none'
-  tag: 'ubuntu-18.04'
-
-  # Agent VM image name
   vmImageName: 'ubuntu-latest'
 
 stages:
@@ -54,7 +52,7 @@ stages:
       displayName: 'Download Agent Package'
     - powershell: |
        $psVersionTable
-       $tag = $(baseImageName) -replace ":","-"
+       $baseImage = $(baseImageName) -replace "-",":"
        $tag = linux/BuildAgentImage.ps1 -WorkingDir $(workingDir) -SourceDir $(sourceDir) -AgentPackage $(agentPackage) -BaseImage $(baseImageName) -Tag $tag
        Write-Host "##vso[task.setvariable variable=tag]$tag"
     - task: Docker@2
