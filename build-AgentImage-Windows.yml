@@ -47,17 +47,9 @@ jobs:
     displayName: 'Download Agent Package'
   - powershell: |
      $psVersionTable
-     $tag = windows/BuildAgentImage.ps1 -WorkingDir $(workingDir) -SourceDir $(sourceDir) -AgentPackage $(agentPackage)
+     $tag = windows/BuildAgentImage.ps1 -WorkingDir $(workingDir) -SourceDir $(sourceDir) -AgentPackage $(agentPackage) -BaseImage $(baseImageName) -Tag $(tag)
      Write-Host "##vso[task.setvariable variable=tag]$tag"
-  - task: Docker@2
     displayName: Build Windows Pipeline Agent Image
-    inputs:
-      containerRegistry: ${{ parameters.ContainerRegistry }}
-      repository: '$(imageRepository)'
-      command: 'build'
-      Dockerfile: $(dockerfilePath)
-      tags: '$(tag)'
-      arguments: '--build-arg BASE=$(baseImageName)'
   - task: Docker@2
     displayName: Push Windows Pipeline Agent Image
     inputs:
