@@ -22,9 +22,15 @@ if [ -n "$AZP_WORK" ]; then
   mkdir -p "$AZP_WORK"
 fi
 
-rm -rf /azp/agent
-mkdir /azp/agent
-cd /azp/agent
+if [ -f "/agent/config.sh" ]; then
+  print_header "Agent is pre-installed, skipping download..."
+  skipDownload = 1
+else
+  rm -rf /agent
+  mkdir /agent
+fi
+
+cd /agent
 
 export AGENT_ALLOW_RUNASROOT="1"
 
@@ -47,26 +53,28 @@ print_header() {
 # Let the agent ignore the token env variables
 export VSO_AGENT_IGNORE=AZP_TOKEN,AZP_TOKEN_FILE
 
-print_header "1. Determining matching Azure Pipelines agent..."
+if [ $skipDownload -eq 0 ]; then
+  print_header "1. Determining matching Azure Pipelines agent..."
 
-AZP_AGENT_RESPONSE=$(curl -LsS \
-  -u user:$(cat "$AZP_TOKEN_FILE") \
-  -H 'Accept:application/json;api-version=3.0-preview' \
-  "$AZP_URL/_apis/distributedtask/packages/agent?platform=linux-x64")
+  AZP_AGENT_RESPONSE=$(curl -LsS \
+    -u user:$(cat "$AZP_TOKEN_FILE") \
+    -H 'Accept:application/json;api-version=3.0-preview' \
+    "$AZP_URL/_apis/distributedtask/packages/agent?platform=linux-x64")
 
-if echo "$AZP_AGENT_RESPONSE" | jq . >/dev/null 2>&1; then
-  AZP_AGENTPACKAGE_URL=$(echo "$AZP_AGENT_RESPONSE" \
-    | jq -r '.value | map([.version.major,.version.minor,.version.patch,.downloadUrl]) | sort | .[length-1] | .[3]')
+  if echo "$AZP_AGENT_RESPONSE" | jq . >/dev/null 2>&1; then
+    AZP_AGENTPACKAGE_URL=$(echo "$AZP_AGENT_RESPONSE" \
+      | jq -r '.value | map([.version.major,.version.minor,.version.patch,.downloadUrl]) | sort | .[length-1] | .[3]')
+  fi
+
+  if [ -z "$AZP_AGENTPACKAGE_URL" -o "$AZP_AGENTPACKAGE_URL" == "null" ]; then
+    echo 1>&2 "error: could not determine a matching Azure Pipelines agent - check that account '$AZP_URL' is correct and the token is valid for that account"
+    exit 1
+  fi
+
+  print_header "2. Downloading and installing Azure Pipelines agent..."
+
+  curl -LsS $AZP_AGENTPACKAGE_URL | tar -xz & wait $!
 fi
-
-if [ -z "$AZP_AGENTPACKAGE_URL" -o "$AZP_AGENTPACKAGE_URL" == "null" ]; then
-  echo 1>&2 "error: could not determine a matching Azure Pipelines agent - check that account '$AZP_URL' is correct and the token is valid for that account"
-  exit 1
-fi
-
-print_header "2. Downloading and installing Azure Pipelines agent..."
-
-curl -LsS $AZP_AGENTPACKAGE_URL | tar -xz & wait $!
 
 source ./env.sh
 
@@ -85,7 +93,6 @@ print_header "3. Configuring Azure Pipelines agent..."
 # remove the administrative token before accepting work
 # rm $AZP_TOKEN_FILE
 
-print_header "4. Running Azure Pipelines agent..."
 
 trap 'cleanup; exit 130' INT
 trap 'cleanup; exit 143' TERM
@@ -93,5 +100,11 @@ trap 'cleanup; exit 143' TERM
 # `exec` the node runtime so it's aware of TERM and INT signals
 # AgentService.js understands how to handle agent self-update and restart
 #exec ./externals/node/bin/node ./bin/AgentService.js interactive
-./run.sh &
+if [ $RUN_ONCE -eq 0 ]
+  print_header "4. Running Azure Pipelines agent..."
+  ./run.sh &
+else
+  print_header "4. Running Azure Pipelines agent once..."
+  ./run.sh --once &
+fi
 wait $!

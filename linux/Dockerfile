@@ -1,4 +1,5 @@
-FROM ubuntu:18.04
+ARG BASE
+FROM ${BASE}
 
 # To make it easier for build and release pipelines to run apt-get,
 # configure apt to not require confirmation (assume the -y argument by default)
@@ -17,9 +18,9 @@ RUN apt-get update \
         libunwind8 \
         netcat
 
-WORKDIR /azp
+WORKDIR /agent
+COPY . ./agent
 
-COPY ./start.sh .
 RUN chmod +x start.sh
 
 CMD ["./start.sh"]

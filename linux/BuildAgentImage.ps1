@@ -1,39 +1,31 @@
 [CmdLetBinding()]
 Param(
-    # [Parameter(Mandatory=$true)]
-    [string] $AgentDownloadUri = "https://vstsagentpackage.azureedge.net/agent/2.166.4/vsts-agent-win-x64-2.166.4.zip",
-    # [Parameter(Mandatory=$true)]
-    [string] $WorkingDir = "C:\Temp\BuildAgentImage",
-    # [Parameter(Mandatory=$true)]
+    [Parameter(Mandatory=$true)]
+    [string] $WorkingDir,
+    [Parameter()]
     [string] $SourceDir = $PWD,
     [Parameter()]
-    [string] $BaseImage = "mcr.microsoft.com/dotnet/framework/sdk:4.8",
-    [Parameter()]
-    [string] $AgentImage = "containerdemos.azurecr.io/pipeline-agent-win",
-    [Parameter()]
-    [switch] $PushImage,
+    [string] $AgentPackage,
+    [Parameter(ParameterSetName = 'Container')]
+    [string] $BaseImage = "ubuntu:20.04",
+    [Parameter(ParameterSetName = 'Container')]
+    [string] $AgentRepository = "pipeline-agent",
+    [Parameter(ParameterSetName = 'Container')]
+    [string] $Tag = 'ubuntu-20.04',
+    [Parameter(ParameterSetName = 'Container')]
+    [switch] $BuildImage,
     [Parameter()]
     [switch] $Clean
 )
 
-# region Functions
+#region Functions
 
-Function Remove-QuotesFromPath([string] $Path)
-{
-    $Path = $Path.Replace('"','')
-    $Path = $Path.Replace("'","")
-    return $Path
-}
 Function ValidateParameters()
 {
-    [System.IO.FileInfo] $agentInfo = $null
-    [string] $agentNamePattern = "(?<name>vsts-agent-win-x64-)(?<version>\d+.\d{1,3}.\d+)"
-    [string] $agentVersion = $null
-
     # Docker Installed?
-    if ($null -eq (Get-Command Docker))
+    if (($BuildImage.IsPresent) -and ($null -eq (Get-Command docker)))
     {
-        Throw "Docker for Windows is not installed!"
+        Throw "Docker for Linux is not installed!"
     }
     # Test Dockerfile exists
     $script:DockerFile = Join-Path $SourceDir -ChildPath "Dockerfile"
@@ -42,40 +34,27 @@ Function ValidateParameters()
         Throw "Dockerfile $DockerFile does not exist!"
     }
     # Test Launcherfile exists
-    $script:AgentLauncher = Join-Path $SourceDir -ChildPath "LaunchAgent.ps1"
+    $script:AgentLauncher = Join-Path $SourceDir -ChildPath "start.sh"
     if (!(Test-Path -Path $AgentLauncher))
     {
         Throw "Agent Launcher $AgentLauncher does not exist!"
     }
-    # Test Agent Path exists
-    $AgentPathZip = Remove-QuotesFromPath($AgentPathZip)
-    if (!(Test-Path -Path $AgentPathZip))
-    {
-        Throw "Agent Zip '$AgentPathZip' does not exist!"
+    # Test if AgentPackage was specified and if it exists
+    if (!([string]::IsNullOrEmpty($AgentPackage)) -and ($AgentPackage -ne 'none')) {
+        if (!(Test-Path $AgentPackage)) {
+            Throw "Agent Package $AgentPackage does not exist!"
+        }
     }
-    # Zip File?
-    $agentInfo = Get-Item -Path $AgentPathZip
-    if (!($agentInfo.Extension.ToLower() -ne "zip"))
-    {
-        Throw "File '$AgentPathZip' ist not a .ZIP File!"
-    }
-    # Correct Naming Syntax
-    if (!($agentInfo.Name -match $agentNamePattern))
-    {
-        Throw "Filename of '$AgentPathZip' invalid! Expected format '$agentNameFormat'"
-    }
-    # Extract Version Number from Agent
-    $agentVersion = $Matches["version"]
-    return $agentVersion
 }
-Function CreateOrCleanWorkingDirectory([string] $WorkingDir, [switch] $Clean)
+
+Function CreateOrCleanWorkingDirectory([string] $WorkingDir, [bool] $Clean)
 {
     # Create / Clean Working Directory
-    $WorkingDir = Remove-QuotesFromPath($WorkingDir)
-    if ((Test-Path -Path $WorkingDir) -and ($Clean.IsPresent))
+    if ((Test-Path -Path $WorkingDir) -and ($Clean))
     {
         #Cleanup
-        Remove-Item -Path "$WorkingDir\*" -Recurse -Force | Out-Null
+        Write-Host "Cleaning $WorkingDir..."
+        Remove-Item -Path "$WorkingDir" -Recurse -Force | Out-Null
     }
     if (!(Test-Path -Path $WorkingDir))
     {
@@ -83,51 +62,47 @@ Function CreateOrCleanWorkingDirectory([string] $WorkingDir, [switch] $Clean)
         New-Item -Path $WorkingDir -ItemType Directory | Out-Null
     }
 }
+
 #endregion
 
 #region Main Script
 
 # Clean Working Directory
-CreateOrCleanWorkingDirectory $WorkingDir $Clean
-
-# Download Agent Binaries
-[uri] $downloadUri = $AgentDownloadUri
-[string] $AgentPathZip = Join-Path $WorkingDir $downloadUri.Segments[-1]
-if (((Test-Path $AgentPathZip) -and ($Clean.IsPresent)) -or (!(Test-Path $AgentPathZip)))
-{
-    Invoke-WebRequest -UseBasicParsing -Uri $AgentDownloadUri -OutFile $AgentPathZip
-    Unblock-File $AgentPathZip
-}
+CreateOrCleanWorkingDirectory $WorkingDir $Clean.IsPresent
 
 # Validate Input Parameters 
 [string] $DockerFile = [string]::Empty
 [string] $AgentLauncher = [string]::Empty
-[string] $agentVersion = ValidateParameters
-
-# Unzip Agent Binaries
-Write-Output "Expanding $AgentPathZip..."
-Expand-Archive -Path "$AgentPathZip" -DestinationPath $(Join-Path $WorkingDir "Agent") -Force
+ValidateParameters
 
 # Copy needed files to working Directory
 $DockerFile = Copy-Item -Path $DockerFile -Destination $WorkingDir -PassThru
 Copy-Item $AgentLauncher -Destination $WorkingDir | Out-Null
 
-# Build Agent Base Image
+# Extract AgentPackge if specified to working Directory
+if (!([string]::IsNullOrEmpty($AgentPackage)) -and ($AgentPackage -ne 'none')) {
+    Write-Host "Expanding $AgentPackage..."
+    tar -xz -f $AgentPackage -C $WorkingDir
+    if ($AgentPackage -match "vsts-agent-linux-x64-(\d+.\d+.\d+)") {
+        $agentVersion = $matches[1]
+        $Tag = "{0}-{1}" -f $Tag, $agentVersion
+    }
+    Write-Host "Done Expanding"
+}
 
-try {
-    Push-Location $WorkingDir
-    Write-Output "Building $($AgentImage):$($agentVersion) Image from $BaseImage..."
-    Docker build --build-arg BASE=$BaseImage -t "$($AgentImage):$($agentVersion)" -t "$($AgentImage):latest" -f $DockerFile . 
-    if ($PushImage.IsPresent)
-    {
-        Write-Output "Pushing Image $($AgentImage):$($agentVersion)"
-        Docker push "$($AgentImage):$($agentVersion)"
-        Docker push "$($AgentImage):latest"
+# Build Agent Base Image
+if ($BuildImage.IsPresent) {
+    try {
+        Push-Location $WorkingDir
+        [string] $t = "{0}:{1}" -f $AgentRepository, $Tag
+        Write-Host "Building $t Image from $BaseImage..."
+        docker build --build-arg BASE=$BaseImage -t $t -f $DockerFile . 
+    }
+    finally {
+        Pop-Location
     }
 }
-finally {
-    Pop-Location
-}
 
-Write-Output "Done building image $($AgentImage):$($agentVersion)"
+Write-Host "Done building image $AgentImage"
+return $Tag
 #endregion
