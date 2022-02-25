@@ -34,8 +34,6 @@ variables:
 
 jobs:
 - job: 'BuildAgentImage'
-  timeoutInMinutes: 90
-
   pool:
     vmImage: ${{ parameters.AgentImage }}
 
@@ -46,8 +44,8 @@ jobs:
     condition: eq(variables.download,true) 
     displayName: 'Download Agent Package'
   - pwsh: |
-     $psVersionTable
      $tag = windows/BuildAgentImage.ps1 -WorkingDir $(workingDir) -SourceDir $(sourceDir) -AgentPackage $(agentPackage) -BaseImage $(baseImageName) -Tag $(tag)
+     $tag
      Write-Host "##vso[task.setvariable variable=tag]$tag"
     displayName: Build Windows Pipeline Agent Image
   - task: Docker@2
