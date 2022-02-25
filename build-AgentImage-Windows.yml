@@ -44,7 +44,7 @@ jobs:
     condition: eq(variables.download,true) 
     displayName: 'Download Agent Package'
   - pwsh: |
-      $tag = windows/BuildAgentImage.ps1 -WorkingDir $(workingDir) -SourceDir $(sourceDir) -AgentPackage $(agentPackage) -BaseImage $(baseImageName) -Tag $(tag)
+      $tag = windows/BuildAgentImage.ps1 -WorkingDir $(workingDir) -SourceDir $(sourceDir) -AgentPackage $(agentPackage) -BaseImage $(baseImageName) -Tag $(tag) -BuildImage
       docker images
       Write-Host "##vso[task.setvariable variable=tag]$tag"
     displayName: Build Windows Pipeline Agent Image
