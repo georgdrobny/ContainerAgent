@@ -64,13 +64,5 @@ jobs:
       command: 'push'
       tags: '$(tag)'
       addPipelineData: true
-  - task: Docker@2
-    displayName: Push Windows Pipeline Agent Image
-    inputs:
-      containerRegistry: ${{ parameters.ContainerRegistry }}
-      repository: '$(imageRepository)'
-      command: 'push'
-      tags: '$(tag)'
-      addPipelineData: true
       
       
