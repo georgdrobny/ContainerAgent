@@ -48,8 +48,6 @@ jobs:
       docker images
       Write-Host "##vso[task.setvariable variable=tag]$tag"
     displayName: Build Windows Pipeline Agent Image
-  - pwsh: |
-      Write-Host $(tag)
   - task: Docker@2
     displayName: Push Windows Pipeline Agent Image
     inputs:
