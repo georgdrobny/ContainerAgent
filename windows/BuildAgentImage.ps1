@@ -101,7 +101,7 @@ if ($BuildImage.IsPresent) {
         Push-Location $WorkingDir
         [string] $t = "{0}:{1}" -f $AgentRepository, $Tag
         Write-Host "Building $t Image from $BaseImage..."
-        Docker build --build-arg BASE=$BaseImage -t $t -f $DockerFile . 
+        Docker build --build-arg BASE=$BaseImage -t $t -f $DockerFile . | Out-Null
     }
     finally {
         Pop-Location
