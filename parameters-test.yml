@@ -4,13 +4,10 @@ parameters:
 - name: image
   displayName: Pool Image
   type: string
-  default: windows-latest
+  default: windows-2019
   values:
-  - windows-latest
   - windows-2019
   - windows-2022
-  - ubuntu-latest
-  - macOS-latest
 
 variables:
   baseImageName: 'mcr.microsoft.com/dotnet/framework/sdk:4.8-windowsservercore-ltsc2019'
@@ -21,6 +18,8 @@ jobs:
   pool: 
     vmImage: ${{ parameters.image }}
   steps:
+  - pwsh: |
+      Write-Host "${{ parameters.image }}"
   - pwsh: |
       Write-Host "BaseImage: $(baseImageName)"
 
