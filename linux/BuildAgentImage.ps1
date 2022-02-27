@@ -13,6 +13,8 @@ Param(
     [Parameter(ParameterSetName = 'Container')]
     [string] $Tag = 'ubuntu-20.04',
     [Parameter(ParameterSetName = 'Container')]
+    [string] $DockerFile = 'dockerfile-ubuntu-2004',
+    [Parameter(ParameterSetName = 'Container')]
     [switch] $BuildImage,
     [Parameter()]
     [switch] $Clean
@@ -28,7 +30,7 @@ Function ValidateParameters()
         Throw "Docker for Linux is not installed!"
     }
     # Test Dockerfile exists
-    $script:DockerFile = Join-Path $SourceDir -ChildPath "Dockerfile"
+    $script:DockerFile = Join-Path $SourceDir -ChildPath $DockerFile
     if (!(Test-Path -Path $DockerFile))
     {
         Throw "Dockerfile $DockerFile does not exist!"
