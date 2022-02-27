@@ -1,0 +1,18 @@
+trigger: none
+
+parameters:
+- name: AgentImage
+  displayName: Pipeline Agent Image
+  type: string
+  default: 'windows-2019'
+  values:
+    - 'windows-2019'
+    - 'windows-2022'
+
+jobs:
+- job: 
+  pool:
+    vmImage: ${{ parameters.AgentImage }}
+  steps:
+  - pwsh: Write-Host "${{ $parameters.AgentImage}}"
+
