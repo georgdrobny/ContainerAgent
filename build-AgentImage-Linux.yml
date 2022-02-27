@@ -8,15 +8,6 @@ parameters:
   displayName: Download and Install Latest Pipeline Agent
   type: boolean
   default: True
-
-- name: BaseImage
-  displayName: Pipeline Agent Base Image
-  type: string
-  default: ubuntu-18-04
-  values:
-    - ubuntu-18-04
-    - ubuntu-20-04
-
 - name: ContainerRegistry
   displayName: Container Registry Service Connection
   default: containeragent
@@ -25,16 +16,11 @@ parameters:
     - gdcontaineragent
 
 variables:
+  agentPackage: 'none'
   imageRepository: 'pipeline-agent'
-  containerRegistry: 'containeragent'
   sourceDir : '$(build.SourcesDirectory)/linux/'
   workingDir : '$(build.ArtifactStagingDirectory)/agent/'
-  dockerfilePath: '$(build.ArtifactStagingDirectory)/agent/Dockerfile'
   download: $[${{ parameters.DownloadAgent }}]
-  baseImageName: $[${{ parameters.BaseImage }}]
-  tag:  $[${{ parameters.BaseImage }}]
-  agentPackage: 'none'
-  vmImageName: 'ubuntu-latest'
 
 stages:
 - stage: BuildAgentImage
@@ -42,24 +28,34 @@ stages:
   jobs:  
   - job: Build
     displayName: Build
+    strategy:
+      matrix:
+        ubuntu-1804:
+          dockerfile: 'dockerfile-ubuntu-1804'
+          repoName: 'ubuntu-18.04'
+          vmImage: 'ubuntu-18.04'
+        windows-2022:
+          dockerfule: 'dockerfile-ubuntu-2004'
+          repoName: 'ubuntu-20.04'
+          vmImage: 'ubuntu-20.04'
+      maxParallel: 2    
     pool:
       vmImage: $(vmImageName)
     steps:
-    - powershell: |
+    - pwsh: |
        $package = common/DownloadAgent.ps1 -AzureDevOpsOrganization $(AzureDevOpsOrganization) -AzureDevOpsPersonalAccessToken $(AzureDevOpsToken) -DestinationDirectory $(Build.ArtifactStagingDirectory)
        Write-Host "##vso[task.setvariable variable=agentPackage]$package"
       condition: eq(variables.download,true) 
       displayName: 'Download Agent Package'
-    - powershell: |
-       $psVersionTable
-       $baseImage = $(baseImageName) -replace "-",":"
-       $tag = linux/BuildAgentImage.ps1 -WorkingDir $(workingDir) -SourceDir $(sourceDir) -AgentPackage $(agentPackage) -BaseImage $(baseImageName) -Tag $tag
+    - pwsh: |
+       $tag = linux/BuildAgentImage.ps1 -WorkingDir $(workingDir) -SourceDir $(sourceDir) -AgentPackage $(agentPackage) -Tag $(repoName) -Dockerfile $(dockerFile)
        Write-Host "##vso[task.setvariable variable=tag]$tag"
+      displayName: Prepare Linux Pipeline Agent Image
     - task: Docker@2
-      displayName: Push Windows Pipeline Agent Image
+      displayName: Build & Push Linux Pipeline Agent Image
       inputs:
-        containerRegistry: ${{ parameters.ContainerRegistry }}
+        containerRegistry: '${{ parameters.ContainerRegistry }}'
         repository: '$(imageRepository)'
-        command: 'push'
+        command: 'buildAndPush'
+        Dockerfile: '$(workingDir)$(dockerfile)'
         tags: '$(tag)'
-        addPipelineData: true
