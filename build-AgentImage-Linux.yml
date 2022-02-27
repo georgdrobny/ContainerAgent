@@ -7,15 +7,15 @@ parameters:
 - name: DownloadAgent
   displayName: Download and Install Latest Pipeline Agent
   type: boolean
-  default: False
+  default: True
 
 - name: BaseImage
   displayName: Pipeline Agent Base Image
   type: string
-  default: 'ubuntu-18-04'
+  default: ubuntu-18-04
   values:
-    - 'ubuntu-18-04'
-    - 'ubuntu-20-04'
+    - ubuntu-18-04
+    - ubuntu-20-04
 
 - name: ContainerRegistry
   displayName: Container Registry Service Connection
