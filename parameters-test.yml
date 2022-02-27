@@ -19,7 +19,11 @@ jobs:
     vmImage: ${{ parameters.image }}
   steps:
   - pwsh: |
-      Write-Host "${{ parameters.image }}"
+      switch (${{ parameters.image }}) {
+        'windows-2019' { $baseImageName = 'mcr.microsoft.com/dotnet/framework/sdk:4.8-windowsservercore-ltsc2019'; break }
+        'windows-2022' { $baseImageName = 'mcr.microsoft.com/dotnet/framework/sdk:4.8-windowsservercore-ltsc2022'; break }
+      }
+      Write-Host "$baseImageName"
   - pwsh: |
       Write-Host "BaseImage: $(baseImageName)"
 
