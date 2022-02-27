@@ -26,11 +26,11 @@ jobs:
    matrix:
      windows-2019:
        baseImageName: 'mcr.microsoft.com/dotnet/framework/sdk:4.8-windowsservercore-ltsc2019'
-       tag: 'windows-2019'
+       repoName: 'windows-2019'
        vmImage: 'windows-2019'
      windows-2022:
        baseImageName: 'mcr.microsoft.com/dotnet/framework/sdk:4.8-windowsservercore-ltsc2022'
-       tag: 'windows-2012'
+       repoName: 'windows-2012'
        vmImage: 'windows-2022'
    maxParallel: 2
   pool:
@@ -42,7 +42,7 @@ jobs:
     condition: eq(variables.download,true) 
     displayName: 'Download Agent Package'
   - pwsh: |
-      $tag = windows/BuildAgentImage.ps1 -WorkingDir $(workingDir) -SourceDir $(sourceDir) -AgentPackage $(agentPackage) -Tag $(tag)
+      $tag = windows/BuildAgentImage.ps1 -WorkingDir $(workingDir) -SourceDir $(sourceDir) -AgentPackage $(agentPackage) -Tag $(repoName)
       Write-Host "##vso[task.setvariable variable=tag]$tag"
     displayName: Prepare Windows Pipeline Agent Image
   - task: Docker@2
