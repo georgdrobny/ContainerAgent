@@ -9,10 +9,13 @@ parameters:
     - 'windows-2019'
     - 'windows-2022'
 
+variables:
+  imageSelection: $[${{ parameters.AgentImage }}]
+
 jobs:
 - job: 
   pool:
     vmImage: ${{ parameters.AgentImage }}
   steps:
-  - pwsh: Write-Host "${{ $parameters.AgentImage}}"
+  - pwsh: Write-Host "${{ parameters.AgentImage}}"
 
