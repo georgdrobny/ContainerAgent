@@ -30,7 +30,7 @@ jobs:
        vmImage: 'windows-2019'
      windows-2022:
        baseImageName: 'mcr.microsoft.com/dotnet/framework/sdk:4.8-windowsservercore-ltsc2022'
-       repoName: 'windows-2012'
+       repoName: 'windows-2022'
        vmImage: 'windows-2022'
    maxParallel: 2
   pool:
