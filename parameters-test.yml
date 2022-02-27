@@ -4,13 +4,13 @@ parameters:
 - name: image
   displayName: Pool Image
   type: string
-  default: windows-2019
+  default: ubuntu-18.04
   values:
-  - windows-2019
-  - windows-2022
+  - windows-18.04
+  - windows-20.04
 
 variables:
-  baseImageName: 'none'
+  dockerFile: 'none'
   tag: 'none'
 
 jobs:
@@ -21,15 +21,15 @@ jobs:
   steps:
   - pwsh: |
       switch ('${{ parameters.image }}') { `
-        'windows-2019' { $baseImageName = 'mcr.microsoft.com/dotnet/framework/sdk:4.8-windowsservercore-ltsc2019'; break } `
-        'windows-2022' { $baseImageName = 'mcr.microsoft.com/dotnet/framework/sdk:4.8-windowsservercore-ltsc2022'; break } `
+        'ubuntu-18.04' { $dockerFile = 'ubuntu-1804'; break } `
+        'windows-2022' { $dockerFile = 'ubuntu-2004'; break } `
       }
-      Write-Host "$baseImageName"
-      "##vso[task.setvariable variable=baseImageName]$baseImageName"
+      Write-Host "$dockerFile"
+      "##vso[task.setvariable variable=dockerFile]$dockerFile"
       $tag = '${{ parameters.image }}'
       "##vso[task.setvariable variable=tag]$tag"
     displayName: Selecting Agent Base Image
   - pwsh: |
-      Write-Host "BaseImage: $(baseImageName)"
+      Write-Host "Dockerfile: $(dockerFile)"
       Write-Host "Tag: $(tag)"
 
