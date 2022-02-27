@@ -28,10 +28,10 @@ Function ValidateParameters()
         Throw "Docker for Linux is not installed!"
     }
     # Test Dockerfile exists
-    $script:DockerFile = Join-Path $SourceDir -ChildPath $DockerFile
-    if (!(Test-Path -Path $DockerFile))
+    $script:DockerFilePath = Join-Path $SourceDir -ChildPath $DockerFile
+    if (!(Test-Path -Path $DockerFilePath))
     {
-        Throw "Dockerfile $DockerFile does not exist!"
+        Throw "Dockerfile $DockerFilePath does not exist!"
     }
     # Test Launcherfile exists
     $script:AgentLauncher = Join-Path $SourceDir -ChildPath "start.sh"
@@ -71,12 +71,12 @@ Function CreateOrCleanWorkingDirectory([string] $WorkingDir, [bool] $Clean)
 CreateOrCleanWorkingDirectory $WorkingDir $Clean.IsPresent
 
 # Validate Input Parameters 
-[string] $DockerFile = [string]::Empty
+[string] $DockerFilePath = [string]::Empty
 [string] $AgentLauncher = [string]::Empty
 ValidateParameters
 
 # Copy needed files to working Directory
-$DockerFile = Copy-Item -Path $DockerFile -Destination $WorkingDir -PassThru
+$DockerFilePath = Copy-Item -Path $DockerFilePath -Destination $WorkingDir -PassThru
 Copy-Item $AgentLauncher -Destination $WorkingDir | Out-Null
 
 # Extract AgentPackge if specified to working Directory
@@ -96,7 +96,7 @@ if ($BuildImage.IsPresent) {
         Push-Location $WorkingDir
         [string] $t = "{0}:{1}" -f $AgentRepository, $Tag
         Write-Host "Building $t Image from $BaseImage..."
-        docker build --build-arg BASE=$BaseImage -t $t -f $DockerFile . 
+        docker build --build-arg BASE=$BaseImage -t $t -f $DockerFilePath . 
     }
     finally {
         Pop-Location
