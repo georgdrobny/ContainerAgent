@@ -4,14 +4,7 @@ parameters:
 - name: DownloadAgent
   displayName: Download and Install Latest Pipeline Agent
   type: boolean
-  default: False
-- name: AgentImage
-  displayName: Pipeline Agent Image
-  type: string
-  default: windows-2019
-  values:
-    - windows-2019
-    - windows-2022
+  default: True
 - name: ContainerRegistry
   displayName: Container Registry Service Connection
   default: containeragent
@@ -20,11 +13,8 @@ parameters:
     - gdcontaineragent
 
 variables:
-  baseImageName: 'none'
-  tag: 'none'
   agentPackage: 'none'
   imageRepository: 'pipeline-agent'
-  containerRegistry: 'containeragent'
   sourceDir : '$(build.SourcesDirectory)\\windows\\'
   workingDir : '$(build.ArtifactStagingDirectory)\\agent\\'
   dockerfilePath: '$(build.ArtifactStagingDirectory)\\agent\\Dockerfile'
@@ -32,24 +22,25 @@ variables:
 
 jobs:
 - job: 'BuildAgentImage'
+  strategy:
+   matrix:
+     windows-2019:
+       $baseImageName = 'mcr.microsoft.com/dotnet/framework/sdk:4.8-windowsservercore-ltsc2019'
+       $tag = 'windows-2019'
+       $vmImage = 'windows-2019'
+     windows-2022:
+       $baseImageName = 'mcr.microsoft.com/dotnet/framework/sdk:4.8-windowsservercore-ltsc2022'
+       $tag = 'windows-2012'
+       $agentImage = 'windows-2022'
+   maxParallel: 2
   pool:
-    vmImage: ${{ parameters.AgentImage }}
+    vmImage: $(agentImage)
   steps:
   - pwsh: |
       $package = common/DownloadAgent.ps1 -AzureDevOpsOrganization $(AzureDevOpsOrganization) -AzureDevOpsPersonalAccessToken $(AzureDevOpsToken) -DestinationDirectory $(Build.ArtifactStagingDirectory)
       Write-Host "##vso[task.setvariable variable=agentPackage]$package"
     condition: eq(variables.download,true) 
     displayName: 'Download Agent Package'
-  - pwsh: |
-      switch ('${{ parameters.AgentImage }}') { `
-        'windows-2019' { $baseImageName = 'mcr.microsoft.com/dotnet/framework/sdk:4.8-windowsservercore-ltsc2019'; break } `
-        'windows-2022' { $baseImageName = 'mcr.microsoft.com/dotnet/framework/sdk:4.8-windowsservercore-ltsc2022'; break } `
-      }
-      "##vso[task.setvariable variable=baseImageName]$baseImageName"
-      $tag = '${{ parameters.AgentImage }}'
-      "##vso[task.setvariable variable=tag]$tag"      
-      Write-Host "BaseImage: $(baseImageName) Tag: $(tag)"
-    displayName: Selecting Agent Base Image
   - pwsh: |
       $tag = windows/BuildAgentImage.ps1 -WorkingDir $(workingDir) -SourceDir $(sourceDir) -AgentPackage $(agentPackage) -Tag $(tag)
       Write-Host "##vso[task.setvariable variable=tag]$tag"
