@@ -4,7 +4,7 @@ parameters:
 - name: image
   displayName: Pool Image
   type: string
-  default: ubuntu-latest
+  default: windows-latest
   values:
   - windows-latest
   - windows-2019
@@ -12,11 +12,12 @@ parameters:
   - ubuntu-latest
   - macOS-latest
 
+
 jobs:
 - job: build
   displayName: build
   pool: 
     vmImage: ${{ parameters.image }}
   steps:
-  - script: echo building $(Build.BuildNumber) with ${{ parameters.image }}
+  - pwsh: echo building $(Build.BuildNumber) with ${{ parameters.image }}
 
