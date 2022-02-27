@@ -29,7 +29,7 @@ variables:
   workingDir : '$(build.ArtifactStagingDirectory)\\agent\\'
   dockerfilePath: '$(build.ArtifactStagingDirectory)\\agent\\Dockerfile'
   download: $[${{ parameters.DownloadAgent }}]
-  imageSelection: $[{{ parameters.AgentImage }}]
+  imageSelection: $[${{ parameters.AgentImage }}]
   agentPackage: 'none'
   tag: 'windows-2019'
 
