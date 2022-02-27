@@ -11,6 +11,7 @@ parameters:
 
 variables:
   baseImageName: 'none'
+  tag: 'none'
 
 jobs:
 - job: build
@@ -25,7 +26,9 @@ jobs:
       }
       Write-Host "$baseImageName"
       "##vso[task.setvariable variable=baseImageName]$baseImageName"
+      $tag = '${{ parameters.image }}'
     displayName: Selecting Agent Base Image
   - pwsh: |
       Write-Host "BaseImage: $(baseImageName)"
+      Write-Host "Tag: $(tag)"
 
