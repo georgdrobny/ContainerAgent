@@ -25,13 +25,13 @@ jobs:
   strategy:
    matrix:
      windows-2019:
-       baseImageName = 'mcr.microsoft.com/dotnet/framework/sdk:4.8-windowsservercore-ltsc2019'
-       tag = 'windows-2019'
-       vmImage = 'windows-2019'
+       baseImageName: 'mcr.microsoft.com/dotnet/framework/sdk:4.8-windowsservercore-ltsc2019'
+       tag: 'windows-2019'
+       vmImage: 'windows-2019'
      windows-2022:
-       baseImageName = 'mcr.microsoft.com/dotnet/framework/sdk:4.8-windowsservercore-ltsc2022'
-       tag = 'windows-2012'
-       agentImage = 'windows-2022'
+       baseImageName: 'mcr.microsoft.com/dotnet/framework/sdk:4.8-windowsservercore-ltsc2022'
+       tag: 'windows-2012'
+       vmImage: 'windows-2022'
    maxParallel: 2
   pool:
     vmImage: $(vmImage)
