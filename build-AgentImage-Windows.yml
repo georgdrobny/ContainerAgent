@@ -5,7 +5,6 @@ parameters:
   displayName: Download and Install Latest Pipeline Agent
   type: boolean
   default: False
-
 - name: AgentImage
   displayName: Pipeline Agent Image
   type: string
@@ -13,7 +12,6 @@ parameters:
   values:
     - windows-2019
     - windows-2022
-
 - name: ContainerRegistry
   displayName: Container Registry Service Connection
   default: containeragent
@@ -43,12 +41,12 @@ jobs:
     condition: eq(variables.download,true) 
     displayName: 'Download Agent Package'
   - pwsh: |
-      switch ('${{ parameters.image }}') { `
+      switch ('${{ parameters.AgentImage }}') { `
         'windows-2019' { $baseImageName = 'mcr.microsoft.com/dotnet/framework/sdk:4.8-windowsservercore-ltsc2019'; break } `
         'windows-2022' { $baseImageName = 'mcr.microsoft.com/dotnet/framework/sdk:4.8-windowsservercore-ltsc2022'; break } `
       }
       "##vso[task.setvariable variable=baseImageName]$baseImageName"
-      $tag = '${{ parameters.image }}'
+      $tag = '${{ parameters.AgentImage }}'
       "##vso[task.setvariable variable=tag]$tag"      
     displayName: Selecting Agent Base Image
   - pwsh: |
