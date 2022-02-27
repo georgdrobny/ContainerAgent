@@ -12,6 +12,8 @@ parameters:
   - ubuntu-latest
   - macOS-latest
 
+variables:
+  baseImageName: 'mcr.microsoft.com/dotnet/framework/sdk:4.8-windowsservercore-ltsc2019'
 
 jobs:
 - job: build
@@ -19,5 +21,6 @@ jobs:
   pool: 
     vmImage: ${{ parameters.image }}
   steps:
-  - pwsh: Write-Host "building $(Build.BuildNumber) with ${{ parameters.image }}"
+  - pwsh: |
+      Write-Host "BaseImage: $(baseImageName)"
 
