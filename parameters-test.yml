@@ -10,7 +10,7 @@ parameters:
   - windows-2022
 
 variables:
-  baseImageName: 'mcr.microsoft.com/dotnet/framework/sdk:4.8-windowsservercore-ltsc2019'
+  baseImageName: 'none'
 
 jobs:
 - job: build
