@@ -22,22 +22,20 @@ parameters:
     - gdcontaineragent
 
 variables:
-  baseImageName: 'mcr.microsoft.com/dotnet/framework/sdk:4.8-windowsservercore-ltsc2019'
+  baseImageName: 'none'
+  tag: 'none'
+  agentPackage: 'none'
   imageRepository: 'pipeline-agent'
   containerRegistry: 'containeragent'
   sourceDir : '$(build.SourcesDirectory)\\windows\\'
   workingDir : '$(build.ArtifactStagingDirectory)\\agent\\'
   dockerfilePath: '$(build.ArtifactStagingDirectory)\\agent\\Dockerfile'
   download: $[${{ parameters.DownloadAgent }}]
-  imageSelection: $[${{ parameters.AgentImage }}]
-  agentPackage: 'none'
-  tag: 'windows-2019'
 
 jobs:
 - job: 'BuildAgentImage'
   pool:
     vmImage: ${{ parameters.AgentImage }}
-
   steps:
   - pwsh: |
       $package = common/DownloadAgent.ps1 -AzureDevOpsOrganization $(AzureDevOpsOrganization) -AzureDevOpsPersonalAccessToken $(AzureDevOpsToken) -DestinationDirectory $(Build.ArtifactStagingDirectory)
@@ -45,11 +43,14 @@ jobs:
     condition: eq(variables.download,true) 
     displayName: 'Download Agent Package'
   - pwsh: |
-      Write-Host "##vso[task.setvariable variable=baseImageName]mcr.microsoft.com/dotnet/framework/sdk:4.8-windowsservercore-ltsc2022"
-      $tag = "windows-2022"
-      Write-Host "##vso[task.setvariable variable=tag]$tag"
-    condition: eq(variables.imagesSelection,'windows-2022')
-    displayName: Selecting Windows Server 2022 Base Image
+      switch ('${{ parameters.image }}') { `
+        'windows-2019' { $baseImageName = 'mcr.microsoft.com/dotnet/framework/sdk:4.8-windowsservercore-ltsc2019'; break } `
+        'windows-2022' { $baseImageName = 'mcr.microsoft.com/dotnet/framework/sdk:4.8-windowsservercore-ltsc2022'; break } `
+      }
+      "##vso[task.setvariable variable=baseImageName]$baseImageName"
+      $tag = '${{ parameters.image }}'
+      "##vso[task.setvariable variable=tag]$tag"      
+    displayName: Selecting Agent Base Image
   - pwsh: |
       $tag = windows/BuildAgentImage.ps1 -WorkingDir $(workingDir) -SourceDir $(sourceDir) -AgentPackage $(agentPackage) -Tag $(tag)
       Write-Host "##vso[task.setvariable variable=tag]$tag"
