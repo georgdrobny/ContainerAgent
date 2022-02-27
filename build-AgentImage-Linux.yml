@@ -39,7 +39,7 @@ stages:
           vmImage: 'ubuntu-20.04'
       maxParallel: 2    
     pool:
-      vmImage: $(vmImageName)
+      vmImage: $(vmImage)
     steps:
     - pwsh: |
        $package = common/DownloadAgent.ps1 -AzureDevOpsOrganization $(AzureDevOpsOrganization) -AzureDevOpsPersonalAccessToken $(AzureDevOpsToken) -DestinationDirectory $(Build.ArtifactStagingDirectory)
