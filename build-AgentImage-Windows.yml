@@ -48,6 +48,7 @@ jobs:
       "##vso[task.setvariable variable=baseImageName]$baseImageName"
       $tag = '${{ parameters.AgentImage }}'
       "##vso[task.setvariable variable=tag]$tag"      
+      Write-Host "BaseImage: $(baseImageName) Tag: $(tag)"
     displayName: Selecting Agent Base Image
   - pwsh: |
       $tag = windows/BuildAgentImage.ps1 -WorkingDir $(workingDir) -SourceDir $(sourceDir) -AgentPackage $(agentPackage) -Tag $(tag)
