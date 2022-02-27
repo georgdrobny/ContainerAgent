@@ -26,15 +26,14 @@ stages:
 - stage: BuildAgentImage
   displayName: Build and push Linux Pipeline Agent Image
   jobs:  
-  - job: Build
-    displayName: Build
+  - job: BuildAgentImage
     strategy:
       matrix:
         ubuntu-1804:
           dockerfile: 'dockerfile-ubuntu-1804'
           repoName: 'ubuntu-18.04'
           vmImage: 'ubuntu-18.04'
-        windows-2022:
+        ubuntu-2004:
           dockerfule: 'dockerfile-ubuntu-2004'
           repoName: 'ubuntu-20.04'
           vmImage: 'ubuntu-20.04'
