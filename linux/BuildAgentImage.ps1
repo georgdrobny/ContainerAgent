@@ -7,8 +7,6 @@ Param(
     [Parameter()]
     [string] $AgentPackage,
     [Parameter(ParameterSetName = 'Container')]
-    [string] $BaseImage = "ubuntu:20.04",
-    [Parameter(ParameterSetName = 'Container')]
     [string] $AgentRepository = "pipeline-agent",
     [Parameter(ParameterSetName = 'Container')]
     [string] $Tag = 'ubuntu-20.04',
