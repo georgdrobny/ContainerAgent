@@ -7,6 +7,8 @@ parameters:
   default: ubuntu-latest
   values:
   - windows-latest
+  - windows-2019
+  - windows-2022
   - ubuntu-latest
   - macOS-latest
 
