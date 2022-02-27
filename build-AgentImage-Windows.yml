@@ -46,7 +46,8 @@ jobs:
     displayName: 'Download Agent Package'
   - pwsh: |
       Write-Host "##vso[task.setvariable variable=baseImageName]mcr.microsoft.com/dotnet/framework/sdk:4.8-windowsservercore-ltsc2022"
-      Write-Host "##vso[task.setvariable variable=baseImageName]'windows-2022'"
+      $tag = "windows-2022"
+      Write-Host "##vso[task.setvariable variable=tag]$tag"
     condition: eq(variables.agentImage,windows-2022)
     displayName: Selecting Windows Server 2022 Base Image
   - pwsh: |
