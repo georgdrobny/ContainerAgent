@@ -60,4 +60,4 @@ stages:
         Dockerfile: '$(workingDir)$(dockerfile)'
         tags: |
           $(tag)
-          $(repoName):latest
+          $(repoName)-latest
