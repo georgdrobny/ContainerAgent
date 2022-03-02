@@ -48,19 +48,22 @@ jobs:
   - task: Docker@2
     displayName: Build Windows Pipeline Agent Image
     inputs:
-      containerRegistry: ${{ parameters.ContainerRegistry }}
+      containerRegistry: '${{ parameters.ContainerRegistry }}'
       repository: '$(imageRepository)'
       command: 'build'
-      Dockerfile: $(dockerfilePath)
-      tags: '$(tag)'
+      Dockerfile: '$(dockerfilePath)'
+      tags: |
+        $(tag)
+        $(repoName)-latest
       arguments: '--build-arg BASE=$(baseImageName)'
   - task: Docker@2
     displayName: Push Windows Pipeline Agent Image
     inputs:
-      containerRegistry: ${{ parameters.ContainerRegistry }}
+      containerRegistry: '${{ parameters.ContainerRegistry }}'
       repository: '$(imageRepository)'
       command: 'push'
-      tags: '$(tag)'
-      addPipelineData: true
+      tags: |
+        $(tag)
+        $(repoName)-latest
       
       

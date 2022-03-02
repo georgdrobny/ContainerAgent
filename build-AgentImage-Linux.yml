@@ -58,4 +58,6 @@ stages:
         repository: '$(imageRepository)'
         command: 'buildAndPush'
         Dockerfile: '$(workingDir)$(dockerfile)'
-        tags: '$(tag)'
+        tags: |
+          $(tag)
+          $(repoName)-latest
