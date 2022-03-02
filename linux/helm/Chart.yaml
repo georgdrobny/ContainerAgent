@@ -1,0 +1,5 @@
+apiVersion: v2
+appVersion: "1.0"
+description: Azure DevOps Container Agent for Linux
+name: container-agent-linux
+version: "1.0"
