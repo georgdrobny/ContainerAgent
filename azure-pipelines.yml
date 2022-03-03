@@ -1,0 +1,11 @@
+trigger: none
+
+pool:
+  vmImage: ubuntu-latest
+
+steps:
+- task: HelmInstaller@0
+  inputs:
+    helmVersion: '3.8.0'
+    installKubectl: false
+
