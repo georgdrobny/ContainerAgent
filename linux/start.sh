@@ -98,3 +98,4 @@ else
   print_header "Running Azure Pipelines agent once..." && ./run.sh --once &
 fi
 wait $!
+cleanup
