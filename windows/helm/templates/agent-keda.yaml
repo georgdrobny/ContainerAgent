@@ -13,18 +13,42 @@ spec:
       key: azp_token
 ---
 apiVersion: keda.sh/v1alpha1
-kind: ScaledObject
+kind: ScaledJob
 metadata:
-  name: agent-win-scaledobject
+  name: win
   namespace: {{ .Values.namespace }}
 spec:
-  scaleTargetRef:
-    name: agent-win
-    kind: StatefulSet
-  minReplicaCount: 1
-  maxReplicaCount: 5
+  jobTargetRef:
+    parallelism: 5
+    completions: 1
+    template:
+      spec:
+        containers:
+        - name: windows-agent
+          image: {{ .Values.repo }}/pipeline-agent:{{ .Values.tag }}
+          imagePullPolicy: IfNotPresent
+          env:
+            - name: VSTS_AGENT_INPUT_URL
+              valueFrom:
+                secretKeyRef:
+                  name: azdevops
+                  key: azp_url
+            - name: VSTS_AGENT_INPUT_AUTH
+              value: 'pat'
+            - name: VSTS_AGENT_INPUT_TOKEN
+              valueFrom:
+                secretKeyRef:
+                  name: azdevops
+                  key: azp_token
+            - name: VSTS_AGENT_INPUT_POOL
+              value: '{{ .Values.poolName }}'
+            - name: RUN_ONCE
+              value: '{{ .Values.runOnce }}'
+        nodeSelector:
+          kubernetes.io/os: windows
   pollingInterval: 1
-  cooldownPeriod:  60
+  successfulJobsHistoryLimit: 1
+  failedJobsHistoryLimit: 1
   triggers:
   - type: azure-pipelines
     metadata:

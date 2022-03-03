@@ -5,5 +5,5 @@ poolId: "1"
 poolName: "Default"
 azpToken: <token>
 azpUrl: <url>
-runOnce: "FALSE"
+runOnce: "True"
   

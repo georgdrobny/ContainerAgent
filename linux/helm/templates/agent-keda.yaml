@@ -13,18 +13,45 @@ spec:
       key: azp_token
 ---
 apiVersion: keda.sh/v1alpha1
-kind: ScaledObject
+kind: ScaledJob
 metadata:
-  name: agent-linux-scaledobject
+  name: agent-linux-scaledjob
   namespace: {{ .Values.namespace }}
 spec:
-  scaleTargetRef:
-    name: agent-linux
-    kind: StatefulSet
-  minReplicaCount: 1
-  maxReplicaCount: 5
+  jobTargetRef:
+    parallelism: 5
+    completions: 1
+    template:
+      spec:
+        containers:
+        - name: agent-linux
+          image: {{ .Values.repo }}/pipeline-agent:{{ .Values.tag }}
+          imagePullPolicy: Always
+          env:
+            - name: AZP_URL
+              valueFrom:
+                secretKeyRef:
+                  name: azdevops
+                  key: azp_url
+            - name: AZP_TOKEN
+              valueFrom:
+                secretKeyRef:
+                  name: azdevops
+                  key: azp_token
+            - name: AZP_POOL
+              value: '{{ .Values.poolName }}'
+            - name: RUN_ONCE
+              value: '{{ .Values.runOnce }}'
+        tolerations:
+          - key: node.kubernetes.io/os
+            operator: Equal
+            value: windows
+            effect: NoSchedule
+        nodeSelector:
+          kubernetes.io/os: linux
   pollingInterval: 1
-  cooldownPeriod:  60
+  successfulJobsHistoryLimit: 1
+  failedJobsHistoryLimit: 1
   triggers:
   - type: azure-pipelines
     metadata:
