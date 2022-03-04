@@ -4,7 +4,10 @@ parameters:
 - name: PoolName
   displayName: Pool Name
   type: string
-  default: default
+  default: linux-container
+  values:
+    - linux-container
+    - windows-2019-container
 - name: AgentPlatform
   displayName: Agent Platform
   type: string
