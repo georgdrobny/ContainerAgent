@@ -18,10 +18,10 @@ parameters:
 - name: AgentImage
   displayName: Agent Image
   type: string
-  default: ubuntu-1804-latest
+  default: ubuntu-18.04-latest
   values:
-    - ubuntu-1804-latest
-    - ubuntu-2004-latest
+    - ubuntu-18.04-latest
+    - ubuntu-20.04-latest
     - windows-2019-latest
     - windows-2022-latest
 
