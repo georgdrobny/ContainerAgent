@@ -52,4 +52,5 @@ steps:
     command: 'install'
     chartType: 'FilePath'
     chartPath: '$(chartPath)'
+    releaseName: '$(namespace)'
     overrideValues: 'poolId=$(poolId),poolName=${{parameters.PoolName}},tag=${{parameters.AgentImage}},namespace=$(namespace),azpUrl=$(AzureDevOpsOrganization),azpToken=$(AzureDevOpsToken)'
