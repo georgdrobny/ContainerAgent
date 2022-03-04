@@ -42,7 +42,7 @@ steps:
     Write-Host "##vso[task.setvariable variable=namespace]$namespace"
   displayName: Get PoolId from PoolName
 - task: HelmDeploy@0
-  condition: ne($(poolId), 0)
+  condition: ne(variables.poolId, 0)
   inputs:
     connectionType: 'Kubernetes Service Connection'
     kubernetesServiceConnection: 'aks-mixed'
