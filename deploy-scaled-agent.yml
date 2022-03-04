@@ -11,14 +11,14 @@ parameters:
 - name: AgentPlatform
   displayName: Agent Platform
   type: string
-  default: Windows
+  default: Linux
   values:
     - Windows
     - Linux
 - name: AgentImage
   displayName: Agent Image
   type: string
-  default: windows-2022-latest
+  default: ubuntu-1804-latest
   values:
     - ubuntu-1804-latest
     - ubuntu-2004-latest
