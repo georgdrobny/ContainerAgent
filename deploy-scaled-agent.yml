@@ -11,10 +11,10 @@ parameters:
 - name: AgentPlatform
   displayName: Agent Platform
   type: string
-  default: Linux
+  default: linux
   values:
-    - Windows
-    - Linux
+    - windows
+    - linux
 - name: AgentImage
   displayName: Agent Image
   type: string
@@ -27,7 +27,7 @@ parameters:
 
 variables:
   poolId: 0
-  chartPath: '$[${{ parameters.AgentPlatform}}]/helm'
+  chartPath: '${{ parameters.AgentPlatform}}/helm'
 
 pool:
   vmImage: ubuntu-latest
