@@ -1,0 +1,56 @@
+trigger: none
+
+parameters:
+- name: PoolName
+  displayName: Pool Name
+  type: string
+  default: linux-container
+  values:
+    - linux-container
+    - windows-2019-container
+- name: AgentPlatform
+  displayName: Agent Platform
+  type: string
+  default: linux
+  values:
+    - linux
+    - windows
+- name: AgentImage
+  displayName: Agent Image
+  type: string
+  default: ubuntu-18.04-latest
+  values:
+    - ubuntu-18.04-latest
+    - ubuntu-20.04-latest
+    - windows-2019-latest
+    - windows-2022-latest
+
+variables:
+  poolId: 0
+  chartPath: '${{ parameters.AgentPlatform}}/helm'
+
+pool:
+  vmImage: ubuntu-latest
+
+steps:
+- task: HelmInstaller@0
+  inputs:
+    helmVersion: '3.8.0'
+    installKubectl: false
+- pwsh: |
+    $poolId = common/GetPoolId.ps1 -AzureDevOpsOrganization $(AzureDevOpsOrganization) -AzureDevOpsPersonalAccessToken $(AzureDevOpsToken) -PoolName ${{ parameters.PoolName }}
+    Write-Host "##vso[task.setvariable variable=poolId]$poolId"
+    [System.Uri] $uri = [System.Uri]::new("$(AzureDevOpsOrganization)")
+    $namespace="{0}-pool-{1}" -f $uri.Segments[-1], $poolId
+    Write-Host "##vso[task.setvariable variable=namespace]$namespace"
+  displayName: Get PoolId from PoolName
+- task: HelmDeploy@0
+  condition: ne(variables.poolId, 0)
+  inputs:
+    connectionType: 'Kubernetes Service Connection'
+    kubernetesServiceConnection: 'aks-mixed'
+    command: 'install'
+    chartType: 'FilePath'
+    chartPath: '$(chartPath)'
+    releaseName: '$(namespace)'
+    overrideValues: 'poolId=$(poolId),poolName=${{parameters.PoolName}},tag=${{parameters.AgentImage}},namespace=$(namespace),azpUrl=$(AzureDevOpsOrganization),azpToken=$(AzureDevOpsToken)'
