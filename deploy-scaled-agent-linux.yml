@@ -7,14 +7,6 @@ parameters:
   default: linux-container
   values:
     - linux-container
-    - windows-2019-container
-- name: AgentPlatform
-  displayName: Agent Platform
-  type: string
-  default: linux
-  values:
-    - linux
-    - windows
 - name: AgentImage
   displayName: Agent Image
   type: string
@@ -22,12 +14,10 @@ parameters:
   values:
     - ubuntu-18.04-latest
     - ubuntu-20.04-latest
-    - windows-2019-latest
-    - windows-2022-latest
 
 variables:
   poolId: 0
-  chartPath: '${{ parameters.AgentPlatform}}/helm'
+  chartPath: 'linux/helm'
 
 pool:
   vmImage: ubuntu-latest
