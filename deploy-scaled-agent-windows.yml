@@ -12,6 +12,7 @@ parameters:
   type: string
   default: windows-2019-latest
   values:
+    - windows-2019-2.200.2
     - windows-2019-latest
     - windows-2022-latest
 
