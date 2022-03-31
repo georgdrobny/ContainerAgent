@@ -46,6 +46,11 @@ spec:
               value: '{{ .Values.runOnce }}'
         nodeSelector:
           kubernetes.io/os: windows
+        tolerations:
+        - key: node.kubernetes.io/os
+          operator: Equal
+          value: windows
+          effect: NoSchedule
   pollingInterval: 1
   successfulJobsHistoryLimit: 1
   failedJobsHistoryLimit: 1
