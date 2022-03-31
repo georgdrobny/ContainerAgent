@@ -31,7 +31,7 @@ jobs:
         $package = common/DownloadAgent.ps1 -AzureDevOpsOrganization $(AzureDevOpsOrganization) -AzureDevOpsPersonalAccessToken $(AzureDevOpsToken) -DestinationDirectory $(Build.ArtifactStagingDirectory)
         Write-Host "::set-output name=agentPackage::$package"
       shell: pwsh
-      if: ${{ inputs.downloadAgent }}
+      if: ${{ inputs.downloadAgent == 'true' }}
     - name: Build the Docker image
       run: |
         $tag = linux/BuildAgentImage.ps1 -WorkingDir '${{ runner.temp }}/agent/' -SourceDir '${{ github.workspace }}/linux/' -AgentPackage $agentPackage -Tag $repoName -Dockerfile $dockerfile
