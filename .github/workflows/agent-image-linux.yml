@@ -1,0 +1,45 @@
+name: Docker Image CI
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+  workflow_dispatch:
+    inputs:
+      downloadAgent:
+        description: Download and Install Latest Pipeline Agent
+        required: true
+        default: ${{ true }}
+env:
+  agentPackage: 'none'
+  imageRepository: 'pipeline-agent'
+  sourceDir : '${{ github.workspace }}/linux/'
+  workingDir : '${{ runner.temp }}/agent/'
+
+jobs:
+  build:
+    strategy:
+       matrix:
+         include:
+           - dockerfile: 'dockerfile-ubuntu-1804'
+             repoName: 'ubuntu-18.04'
+             os: 'ubuntu-18.04'
+           - dockerfile: 'dockerfile-ubuntu-2004'
+             reponame: 'ubuntu-20.04'
+             os: 'ubuntu-20.04'         
+    runs-on: ${{ matrix.os }}
+    steps:
+    - uses: actions/checkout@v3
+    - name: Download Agent Package
+      run: |
+        $package = common/DownloadAgent.ps1 -AzureDevOpsOrganization $(AzureDevOpsOrganization) -AzureDevOpsPersonalAccessToken $(AzureDevOpsToken) -DestinationDirectory $(Build.ArtifactStagingDirectory)
+        Write-Host "::set-output name=agentPackage::$package"
+      shell: pwsh
+      if: ${{ inputs.downloadAgent }}
+    - name: Build the Docker image
+      run: |
+        $tag = linux/BuildAgentImage.ps1 -WorkingDir $workingDir -SourceDir $sourceDir -AgentPackage $agentPackage -Tag $repoName -Dockerfile $dockerfile
+        Write-Host "::set-output name=tag::$tag"
+      shell: pwsh
+      
