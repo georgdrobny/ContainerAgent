@@ -1,10 +1,6 @@
 name: Docker Image CI
 
 on:
-  push:
-    branches: [ main ]
-  pull_request:
-    branches: [ main ]
   workflow_dispatch:
     inputs:
       downloadAgent:
@@ -15,7 +11,6 @@ on:
 env:
   agentPackage: 'none'
   imageRepository: 'pipeline-agent'
-  sourceDir : '${{ github.workspace }}/linux/'
 
 jobs:
   build:
@@ -39,7 +34,7 @@ jobs:
       if: ${{ inputs.downloadAgent }}
     - name: Build the Docker image
       run: |
-        $tag = linux/BuildAgentImage.ps1 -WorkingDir '${{ runner.temp }}/agent/' -SourceDir $sourceDir -AgentPackage $agentPackage -Tag $repoName -Dockerfile $dockerfile
+        $tag = linux/BuildAgentImage.ps1 -WorkingDir '${{ runner.temp }}/agent/' -SourceDir '${{ github.workspace }}/linux/' -AgentPackage $agentPackage -Tag $repoName -Dockerfile $dockerfile
         Write-Host "::set-output name=tag::$tag"
       shell: pwsh
       
