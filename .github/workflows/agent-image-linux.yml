@@ -1,4 +1,4 @@
-name: Docker Image CI
+name: Agent Image Linux
 
 on:
   workflow_dispatch:
@@ -28,7 +28,7 @@ jobs:
     - uses: actions/checkout@v3
     - name: Display Download Input Variable
       run: |
-        Write-Host ${{ ${{ github.event.inputs.downloadAgent }}
+        Write-Host ${{ github.event.inputs.downloadAgent }}
       shell: pwsh  
     - name: Download Agent Package
       run: |
