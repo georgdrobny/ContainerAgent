@@ -38,7 +38,8 @@ jobs:
       if: ${{ github.event.inputs.downloadAgent == 'true' }}
     - name: Build the Docker image
       run: |
-        $tag = linux/BuildAgentImage.ps1 -WorkingDir '${{ runner.temp }}/agent/' -SourceDir '${{ github.workspace }}/linux/' -AgentPackage $agentPackage -Tag ${{ matrix.repoName }} -Dockerfile ${{ matrix.dockerfile }}
+        $tag = linux/BuildAgentImage.ps1 -WorkingDir '${{ runner.temp }}/agent/' -SourceDir '${{ github.workspace }}/linux/' -AgentPackage ${{ outputs.agentPackage }} -Tag ${{ matrix.repoName }} -Dockerfile ${{ matrix.dockerfile }}
         Write-Host "::set-output name=tag::$tag"
+        docker images
       shell: pwsh
       
