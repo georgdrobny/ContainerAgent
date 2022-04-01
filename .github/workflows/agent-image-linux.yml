@@ -29,8 +29,6 @@ jobs:
       id: download_agent
       run: |
         $package = common/DownloadAgent.ps1 -AzureDevOpsOrganization ${{ secrets.AZURE_DEVOPS_ORGANIZATION }} -AzureDevOpsPersonalAccessToken ${{ secrets.AZURE_DEVOPS_TOKEN }} -DestinationDirectory ${{ runner.temp }}
-        Write-Host $ENV:agentPackage
-        Out-File -FilePath $Env:agentPackage -Encoding utf-8 -Append
         Write-Host "::set-output name=agentPackage::$package"
       shell: pwsh
       if: ${{ github.event.inputs.downloadAgent == 'true' }}
