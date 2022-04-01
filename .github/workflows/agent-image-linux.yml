@@ -26,15 +26,16 @@ jobs:
     runs-on: ${{ matrix.os }}
     steps:
     - uses: actions/checkout@v3
-    - run: |
-        echo ${{ ${{ github.event.inputs.downloadAgent }}
-        shell: pwah
+    - name: Display Download Input Variable
+      run: |
+        Write-Host ${{ ${{ github.event.inputs.downloadAgent }}
+      shell: pwsh  
     - name: Download Agent Package
       run: |
         $package = common/DownloadAgent.ps1 -AzureDevOpsOrganization $(AzureDevOpsOrganization) -AzureDevOpsPersonalAccessToken $(AzureDevOpsToken) -DestinationDirectory $(Build.ArtifactStagingDirectory)
         Write-Host "::set-output name=agentPackage::$package"
       shell: pwsh
-      if: ${{ ${{ github.event.inputs.downloadAgent == 'true' }}
+      if: ${{ github.event.inputs.downloadAgent == 'true' }}
     - name: Build the Docker image
       run: |
         $tag = linux/BuildAgentImage.ps1 -WorkingDir '${{ runner.temp }}/agent/' -SourceDir '${{ github.workspace }}/linux/' -AgentPackage $agentPackage -Tag ${{ matrix.repoName }} -Dockerfile ${{ matrix.dockerfile }}
