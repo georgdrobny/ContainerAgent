@@ -10,9 +10,11 @@ on:
         default: 'true'
 env:
   imageRepository: 'pipeline-agent'
-
+  
 jobs:
   build:
+    env:
+       workingDir: '${{ runner.temp }}/agent/'
     strategy:
        matrix:
          include:
@@ -32,11 +34,11 @@ jobs:
         Write-Output "agentPackage=$package" | Out-File -FilePath $Env:GITHUB_ENV -Encoding utf-8 -Append
       shell: pwsh
       if: ${{ github.event.inputs.downloadAgent == 'true' }}
-    - name: Build the Docker image
+    - name: Prepare Linux Pipeline Agent Image
       run: |
-        $tag = linux/BuildAgentImage.ps1 -WorkingDir '${{ runner.temp }}/agent/' -SourceDir '${{ github.workspace }}/linux/' -AgentPackage $agentPackage -Tag ${{ matrix.repoName }} -Dockerfile ${{ matrix.dockerfile }}
+        Write-Output $agentPackage
+        $tag = linux/BuildAgentImage.ps1 -WorkingDir $workingDir -SourceDir '${{ github.workspace }}/linux/' -AgentPackage $agentPackage -Tag ${{ matrix.repoName }} -Dockerfile ${{ matrix.dockerfile }}
         $tag
-        Write-Output "tag=$tag"
-        docker images
+        Write-Output "tag=$tag" | Out-File -FilePath $Env:GITHUB_ENV -Encoding utf-8 -Append
       shell: pwsh
       
