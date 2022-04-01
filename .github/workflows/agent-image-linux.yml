@@ -13,8 +13,6 @@ env:
   
 jobs:
   build:
-    env:
-       workingDir: '${{ runner.temp }}/agent/'
     strategy:
        matrix:
          include:
@@ -37,7 +35,7 @@ jobs:
     - name: Prepare Linux Pipeline Agent Image
       run: |
         Write-Output $agentPackage
-        $tag = linux/BuildAgentImage.ps1 -WorkingDir $workingDir -SourceDir '${{ github.workspace }}/linux/' -AgentPackage $agentPackage -Tag ${{ matrix.repoName }} -Dockerfile ${{ matrix.dockerfile }}
+        $tag = linux/BuildAgentImage.ps1 -WorkingDir '${{ runner.temp }}/agent/' -SourceDir '${{ github.workspace }}/linux/' -AgentPackage $agentPackage -Tag ${{ matrix.repoName }} -Dockerfile ${{ matrix.dockerfile }}
         $tag
         Write-Output "tag=$tag" | Out-File -FilePath $Env:GITHUB_ENV -Encoding utf-8 -Append
       shell: pwsh
