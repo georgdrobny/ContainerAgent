@@ -34,7 +34,7 @@ jobs:
         $tag = linux/BuildAgentImage.ps1 -WorkingDir '${{ runner.temp }}/agent/' -SourceDir '${{ github.workspace }}/linux/' -AgentPackage $ENV:agentPackage -Tag ${{ matrix.repoName }} -Dockerfile ${{ matrix.dockerfile }}
         Write-Output "tag=$tag" | Out-File -FilePath $Env:GITHUB_ENV -Encoding utf-8 -Append
       shell: pwsh
-    - run : get-childItem ${{ runner.temp }}/agent/' -Recurse
+    - run : get-childItem ${{ runner.temp }}/agent/ -Recurse
       shell: pwsh
     - name: Login to Azure Container Registry
       uses: docker/login-action@v1
