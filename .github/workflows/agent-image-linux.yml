@@ -42,7 +42,7 @@ jobs:
         password: ${{ secrets.ACR_PASSWORD }}
     - name: Set up Docker Buildx
       uses: docker/setup-buildx-action@v1  
-    - run: ls
+    - run: ls ${{ runner.temp }}
       shell: bash
     - name: Build and push Linux Pipeline Agent Image
       uses: docker/build-push-action@v2
