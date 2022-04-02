@@ -49,3 +49,4 @@ jobs:
         file: ${{ matrix.dockerfile }}
         push: true
         tags: ${{ secrets.ACR_NAME }}.azurecr.io/pipeline-agent:${{ env.tag }}
+      if: ${{ 'true' == 'false' }}
