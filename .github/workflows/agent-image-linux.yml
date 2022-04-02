@@ -47,8 +47,8 @@ jobs:
     - name: Build and push Linux Pipeline Agent Image
       uses: docker/build-push-action@v2
       with:
-        context: ${{ github.workspace }}/agent
+        context: ${{ runner.temp }}/agent
         file: ${{ matrix.dockerfile }}
         push: true
         tags: ${{ secrets.ACR_NAME }}.azurecr.io/pipeline-agent:${{ env.tag }}
-      if: ${{ 'true' == 'false' }}
+      if: ${{ 'true' == 'true' }}
