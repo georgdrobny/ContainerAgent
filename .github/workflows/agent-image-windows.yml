@@ -32,7 +32,6 @@ jobs:
     - name: Prepare Windows Pipeline Agent Image
       run: |
         $tag = windows/BuildAgentImage.ps1 -WorkingDir '${{ runner.temp }}\agent\' -SourceDir '${{ github.workspace }}\windows\' -AgentPackage $ENV:agentPackage -Tag ${{ matrix.repoName }}
-        dir '${{ runner.temp }}\agent\'
         Write-Output "tag=$tag" | Out-File -FilePath $Env:GITHUB_ENV -Encoding utf-8 -Append
       shell: pwsh
     - name: Login to Azure Container Registry
@@ -52,5 +51,5 @@ jobs:
         file: ${{ runner.temp }}\agent\Dockerfile
         push: true
         tags: ${{ secrets.ACR_NAME }}.azurecr.io/pipeline-agent:${{ env.tag }}
-        arguments: '--build-arg BASE=${{ matrix.baseImageName }}'
+        build-arg: 'BASE=${{ matrix.baseImageName }}'
       if: ${{ 'true' == 'true' }}
