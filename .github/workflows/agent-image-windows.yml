@@ -51,5 +51,5 @@ jobs:
         file: ${{ runner.temp }}\agent\Dockerfile
         push: true
         tags: ${{ secrets.ACR_NAME }}.azurecr.io/pipeline-agent:${{ env.tag }}
-        build-arg: 'BASE=${{ matrix.baseImageName }}'
+        build-args: 'BASE=${{ matrix.baseImageName }}'
       if: ${{ 'true' == 'true' }}
