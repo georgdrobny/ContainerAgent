@@ -1,0 +1,55 @@
+name: Agent Image Windows
+
+on:
+  workflow_dispatch:
+    inputs:
+      downloadAgent:
+        description: Download and Install Latest Pipeline Agent
+        required: true
+        type: boolean
+        default: 'true'
+jobs:
+  build:
+    strategy:
+       matrix:
+         include:
+           - baseImageName: 'mcr.microsoft.com/dotnet/framework/sdk:4.8-windowsservercore-ltsc2019'
+             repoName: 'windows-2019'
+             os: 'windows-2019'
+           - baseImageName: 'mcr.microsoft.com/dotnet/framework/sdk:4.8-windowsservercore-ltsc2022'
+             reponame: 'windows-2022'
+             os: 'windows-2022'         
+    runs-on: ${{ matrix.os }}
+    steps:
+    - uses: actions/checkout@v3
+    - name: Download Agent Package
+      id: download_agent
+      run: |
+        $package = common/DownloadAgent.ps1 -AzureDevOpsOrganization ${{ secrets.AZURE_DEVOPS_ORGANIZATION }} -AzureDevOpsPersonalAccessToken ${{ secrets.AZURE_DEVOPS_TOKEN }} -DestinationDirectory ${{ runner.temp }}
+        Write-Output "agentPackage=$package" | Out-File -FilePath $Env:GITHUB_ENV -Encoding utf-8 -Append
+      shell: pwsh
+      if: ${{ github.event.inputs.downloadAgent == 'true' }}
+    - name: Prepare Linux Pipeline Agent Image
+      run: |
+        $tag = windows/BuildAgentImage.ps1 -WorkingDir '${{ runner.temp }}/agent/' -SourceDir '${{ github.workspace }}/windows/' -AgentPackage $ENV:agentPackage -Tag ${{ matrix.repoName }}
+        Write-Output "tag=$tag" | Out-File -FilePath $Env:GITHUB_ENV -Encoding utf-8 -Append
+      shell: pwsh
+    - name: Login to Azure Container Registry
+      uses: docker/login-action@v1
+      with:
+        registry: ${{ secrets.ACR_NAME }}.azurecr.io 
+        username: ${{ secrets.ACR_USER }}
+        password: ${{ secrets.ACR_PASSWORD }}
+    - name: Set up Docker Buildx
+      uses: docker/setup-buildx-action@v1  
+    - run: ls ${{ runner.temp }}/agent
+      shell: bash
+    - name: Build and push Linux Pipeline Agent Image
+      uses: docker/build-push-action@v2
+      with:
+        context: ${{ runner.temp }}/agent
+        file: ${{ runner.temp }}/agent/Dockerfile
+        push: true
+        tags: ${{ secrets.ACR_NAME }}.azurecr.io/pipeline-agent:${{ env.tag }}
+        arguments: '--build-arg BASE=${{ mstrix.baseImageName }}'
+      if: ${{ 'true' == 'true' }}
