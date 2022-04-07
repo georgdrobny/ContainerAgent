@@ -21,6 +21,20 @@ name: Deploy Scaled Agent Linux
 
 on:
   workflow_dispatch:
+    inputs:
+      PoolName:
+        description: Pool Name
+        type: choice
+        default: linux-container
+        options:
+        - linux-container
+      AgentImage:
+        description: Agent Image
+        type: choice
+        default: ubuntu-18.04-latest
+        options:
+        - ubuntu-18.04-latest
+        - ubuntu-20.04-latest
 
 env:
   AZURE_CONTAINER_REGISTRY: "your-azure-container-registry"
