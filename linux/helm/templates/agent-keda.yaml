@@ -26,7 +26,7 @@ spec:
         containers:
         - name: agent-linux
           image: {{ .Values.repo }}/pipeline-agent:{{ .Values.tag }}
-          imagePullPolicy: Always
+          imagePullPolicy: IfNotPresent
           env:
             - name: AZP_URL
               valueFrom:
