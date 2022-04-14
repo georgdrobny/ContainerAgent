@@ -31,19 +31,18 @@ on:
       AgentImage:
         description: Agent Image
         type: choice
-        default: ubuntu-18.04-latest
+        default: ubuntu-18.04-2.202.0
         options:
-        - ubuntu-18.04-latest
-        - ubuntu-20.04-latest
+        - ubuntu-18.04-2.202.0
+        - ubuntu-20.04-2.202.0
 
 env:
-  AZURE_CONTAINER_REGISTRY: "your-azure-container-registry"
-  CONTAINER_NAME: "your-container-name"
+  AZURE_CONTAINER_REGISTRY: "ghcontaineragent"
+  CONTAINER_NAME: "pipeline-agent"
   RESOURCE_GROUP: "aks-mixed-1"
   CLUSTER_NAME: "aks-mixed"
   IMAGE_PULL_SECRET_NAME: "your-image-pull-secret-name"
-  CHART_PATH: "your-chart-path"
-  CHART_OVERRIDE_PATH: "your-chart-override-path"
+  CHART_PATH: "linux/helm"
 
 jobs:
   build:
@@ -54,9 +53,7 @@ jobs:
       
     runs-on: ubuntu-latest
     steps:
-    # Checks out the repository this file is in
     - uses: actions/checkout@v3
-    
     # Logs in with your Azure credentials
     - name: Azure login
       uses: azure/login@v1.4.3
