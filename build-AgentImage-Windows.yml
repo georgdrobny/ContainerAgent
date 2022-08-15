@@ -13,7 +13,6 @@ parameters:
     - gdcontaineragent
 
 variables:
-  group: AzureDevOps
   agentPackage: 'none'
   imageRepository: 'pipeline-agent'
   sourceDir : '$(build.SourcesDirectory)\\windows\\'
