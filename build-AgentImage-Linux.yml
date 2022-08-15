@@ -29,14 +29,14 @@ stages:
   - job: BuildAgentImage
     strategy:
       matrix:
-        ubuntu-1804:
-          dockerfile: 'dockerfile-ubuntu-1804'
-          repoName: 'ubuntu-18.04'
-          vmImage: 'ubuntu-18.04'
         ubuntu-2004:
           dockerfile: 'dockerfile-ubuntu-2004'
           repoName: 'ubuntu-20.04'
           vmImage: 'ubuntu-20.04'
+        ubuntu-2204:
+          dockerfile: 'dockerfile-ubuntu-2204'
+          repoName: 'ubuntu-22.04'
+          vmImage: 'ubuntu-22.04'
       maxParallel: 2    
     pool:
       vmImage: $(vmImage)
