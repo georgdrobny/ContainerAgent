@@ -10,10 +10,10 @@ parameters:
 - name: AgentImage
   displayName: Agent Image
   type: string
-  default: ubuntu-18.04-latest
+  default: ubuntu-20.04-latest
   values:
-    - ubuntu-18.04-latest
     - ubuntu-20.04-latest
+    - ubuntu-22.04-latest
 
 variables:
   poolId: 0
