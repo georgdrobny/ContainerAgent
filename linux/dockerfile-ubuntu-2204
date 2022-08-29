@@ -7,11 +7,15 @@ RUN DEBIAN_FRONTEND=noninteractive apt-get install -y -qq --no-install-recommend
     apt-utils \
     ca-certificates \
     curl \
+    wget \
     git \
     iputils-ping \
     jq \
     lsb-release \
     software-properties-common
+
+RUN http://nz2.archive.ubuntu.com/ubuntu/pool/main/o/openssl/libssl1.1_1.1.1f-1ubuntu2_amd64.deb && dpkg -i libssl1.1_1.1.1f-1ubuntu2_amd64.deb 
+RUN sed -i 's/openssl_conf = openssl_init/#openssl_conf = openssl_init/g' /etc/ssl/openssl.cnf
 
 RUN curl -sL https://aka.ms/InstallAzureCLIDeb | bash
 
