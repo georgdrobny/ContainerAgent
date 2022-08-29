@@ -95,14 +95,14 @@ if ($BuildImage.IsPresent) {
     try {
         Push-Location $WorkingDir
         [string] $t = "{0}:{1}" -f $AgentRepository, $Tag
-        Write-Host "Building $t Image from $BaseImage..."
-        docker build --build-arg BASE=$BaseImage -t $t -f $DockerFilePath . 
+        Write-Host "Building $t Image..."
+        docker build -t $t -f $DockerFilePath . 
+        Write-Host "Done building image $t"
     }
     finally {
         Pop-Location
     }
 }
 
-Write-Host "Done building image $AgentImage"
 return $Tag
 #endregion
