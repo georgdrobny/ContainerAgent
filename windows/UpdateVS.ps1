@@ -97,7 +97,7 @@ if ($null -eq (Get-Module -Name VSSetup -ListAvailable)) {
 }
 # Determining Visual Studio Installation
 $setupInstances = Get-VSSetupInstance 
-if (($null -eq $setupInstances) -or ($setupInstances.Count -eq 0)) {
+if ($null -eq $setupInstances) {
     Write-Host "No Version of Visual Studio is installed!" -ForegroundColor Red
     exit 1
 }
