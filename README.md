@@ -4,7 +4,7 @@ The tools available in this repository are designed to build a container image f
 ## Windows
 For Windows you can create a Container Image based on:
 
-* Image with Visual Studio 2017/2019 preinstalled 
+* Image with Visual Studio 2019 preinstalled 
 * Any publically available image like
     * [microsoft/dotnet](https://hub.docker.com/r/microsoft/dotnet/) 
     * [microsoft/dotnet-framework-sdk](https://hub.docker.com/_/microsoft-dotnet-framework-sdk/)
