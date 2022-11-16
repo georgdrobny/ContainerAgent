@@ -23,7 +23,7 @@ For Windows you can create a Container Image based on:
 If you need to have Visual Studio in your Azure Pipelines agent image, you can build a Azure Pipelines container image with Visual Studio 2019/2017 Enterprise/Professional installed in the image.
 
 To build the image, a YAML pipeline is included in this repo. See [build-VSImage.yml](build-VSImage.yml)
-The pipeline can build either a **Visual Studio 2017 or 2019** image. You can choose between **Professional and Entreprise** Edition. Which Visual Studio components are installed in the base base is defined in the dockerfiles provided in this repo. You can customize it for your needs. 
+The pipeline can build either a **Visual Studio 2019 or 2022** image. You can choose between **Professional and Entreprise** Edition. Which Visual Studio components are installed in the base base is defined in the dockerfiles provided in this repo. You can customize it for your needs. 
 * [VS2017 Enterprise Dockerfile](windows/VS2017Container/Dockerfile.Enterprise) 
 * [VS2017 Professional Dockerfile](windows/VS2017Container/Dockerfile.Professional) 
 * [VS2019 Enterprise Dockerfile](windows/VS2019Container/Dockerfile.Enterprise) 
