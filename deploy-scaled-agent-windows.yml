@@ -7,6 +7,7 @@ parameters:
   default: windows-2019-container
   values:
     - windows-2019-container
+    - windows-2022-container
 - name: AgentImage
   displayName: Agent Image
   type: string
