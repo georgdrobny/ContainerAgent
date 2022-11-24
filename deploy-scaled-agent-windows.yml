@@ -15,7 +15,14 @@ parameters:
   values:
     - windows-2019-latest
     - windows-2022-latest
-
+- name: Repo
+  displayName: Agent Repo
+  type: string
+  default: containeragent
+  values:
+    - containeragent
+    - georgd
+    
 variables:
   poolId: 0
   chartPath: 'windows/helm'
@@ -44,4 +51,4 @@ steps:
     chartType: 'FilePath'
     chartPath: '$(chartPath)'
     releaseName: '$(namespace)'
-    overrideValues: 'poolId=$(poolId),poolName=${{parameters.PoolName}},tag=${{parameters.AgentImage}},namespace=$(namespace),azpUrl=$(AzureDevOpsOrganization),azpToken=$(AzureDevOpsToken)'
+    overrideValues: 'repo=${{parameters.repo}}.azurecr.io,poolId=$(poolId),poolName=${{parameters.PoolName}},tag=${{parameters.AgentImage}},namespace=$(namespace),azpUrl=$(AzureDevOpsOrganization),azpToken=$(AzureDevOpsToken)'
