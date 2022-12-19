@@ -10,9 +10,9 @@ parameters:
   default: True
 - name: ContainerRegistry
   displayName: Container Registry Service Connection
-  default: containeragent
+  default: georgd
   values:
-    - containeragent
+    - georgd
     - gdcontaineragent
 
 variables:
