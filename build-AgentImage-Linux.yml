@@ -45,7 +45,7 @@ stages:
       vmImage: $(vmImage)
     steps:
     - pwsh: |
-       $package = common/DownloadAgent.ps1 -AzureDevOpsOrganization $(AzureDevOpsOrganization) -AzureDevOpsPersonalAccessToken $(AzureDevOpsToken) -DestinationDirectory $(Build.ArtifactStagingDirectory)
+       $package = common/DownloadAgent.ps1 -AzureDevOpsOrganization $(AzureDevOpsOrganization) -AzureDevOpsPersonalAccessToken $(AzureDevOpsToken) -DestinationDirectory $(Build.ArtifactStagingDirectory) -CustomAgentLocation ${{ parameters.CustomAgent }}
        Write-Host "##vso[task.setvariable variable=agentPackage]$package"
       condition: eq(variables.download,true) 
       displayName: 'Download Agent Package'
