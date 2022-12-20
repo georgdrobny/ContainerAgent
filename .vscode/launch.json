@@ -1,0 +1,22 @@
+{
+    // Use IntelliSense to learn about possible attributes.
+    // Hover to view descriptions of existing attributes.
+    // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "name": "DownloadAgent-Custom",
+            "type": "PowerShell",
+            "request": "launch",
+            "script": "${workspaceFolder}/Common/DownloadAgent.ps1",
+            "args": ["-AzureDevopsOrganization $env:ADOORG -AzureDevopsPersonalAccessToken $ENV:ADOPAT -DestinationDirectory C:\\Temp\\Agent -CustomAgentLocation https://vstsagentpackage.azureedge.net/agent/2.214.1/vsts-agent-win-x64-2.214.1.zip"]
+        },
+        {
+            "name": "DownloadAgent-Latest",
+            "type": "PowerShell",
+            "request": "launch",
+            "script": "${workspaceFolder}/Common/DownloadAgent.ps1",
+            "args": ["-AzureDevopsOrganization $env:ADOORG -AzureDevopsPersonalAccessToken $ENV:ADOPAT -DestinationDirectory C:\\Temp\\Agent"]
+        }
+    ]
+}
