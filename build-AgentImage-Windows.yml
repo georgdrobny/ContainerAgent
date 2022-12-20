@@ -11,6 +11,9 @@ parameters:
   values:
     - containeragent
     - gdcontaineragent
+- name: CustomAgent
+  displayName: Url for Custom Pipline Agent
+  type: string
 
 variables:
   agentPackage: 'none'
@@ -37,7 +40,7 @@ jobs:
     vmImage: $(vmImage)
   steps:
   - pwsh: |
-      $package = common/DownloadAgent.ps1 -AzureDevOpsOrganization $(AzureDevOpsOrganization) -AzureDevOpsPersonalAccessToken $(AzureDevOpsToken) -DestinationDirectory $(Build.ArtifactStagingDirectory)
+      $package = common/DownloadAgent.ps1 -AzureDevOpsOrganization $(AzureDevOpsOrganization) -AzureDevOpsPersonalAccessToken $(AzureDevOpsToken) -DestinationDirectory $(Build.ArtifactStagingDirectory) -CustomAgentLocation ${{ parameters.CustomAgent }}
       Write-Host "##vso[task.setvariable variable=agentPackage]$package"
     condition: eq(variables.download,true) 
     displayName: 'Download Agent Package'
