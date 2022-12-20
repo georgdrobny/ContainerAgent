@@ -14,6 +14,9 @@ parameters:
   values:
     - georgd
     - gdcontaineragent
+- name: CustomAgent
+  displayName: Url for Custom Pipline Agent
+  type: string
 
 variables:
   agentPackage: 'none'
