@@ -42,11 +42,6 @@ spec:
               value: '{{ .Values.poolName }}'
             - name: RUN_ONCE
               value: '{{ .Values.runOnce }}'
-        tolerations:
-          - key: node.kubernetes.io/os
-            operator: Equal
-            value: windows
-            effect: NoSchedule
         nodeSelector:
           kubernetes.io/os: linux
   pollingInterval: 1
