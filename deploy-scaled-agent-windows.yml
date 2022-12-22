@@ -15,6 +15,9 @@ parameters:
   values:
     - windows-2019-latest
     - windows-2022-latest
+- name: CustomTag
+  displayName: Custom Tag
+  type: string
 - name: Repo
   displayName: Agent Repo
   type: string
