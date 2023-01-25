@@ -4,17 +4,18 @@ parameters:
 - name: PoolName
   displayName: Pool Name
   type: string
-  default: windows-2019-container
+  default: windows-2022-container
   values:
     - windows-2019-container
     - windows-2022-container
 - name: AgentImage
   displayName: Agent Image
   type: string
-  default: windows-2019-latest
+  default: windows-2022-2.214.1
   values:
     - windows-2019-latest
     - windows-2022-latest
+    - windows-2022-2.214.1
 - name: Repo
   displayName: Agent Repo
   type: string
