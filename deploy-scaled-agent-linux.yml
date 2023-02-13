@@ -23,8 +23,11 @@ parameters:
     - georgd
 
 variables:
-  poolId: 0
-  chartPath: 'linux/helm'
+- group: AzureDevOps
+- name: poolId
+  value: 0
+- name: chartPath
+  value: 'linux/helm'
 
 pool:
   vmImage: ubuntu-latest
