@@ -13,12 +13,19 @@ parameters:
     - gdcontaineragent
 
 variables:
-  agentPackage: 'none'
-  imageRepository: 'pipeline-agent'
-  sourceDir : '$(build.SourcesDirectory)\\windows\\'
-  workingDir : '$(build.ArtifactStagingDirectory)\\agent\\'
-  dockerfilePath: '$(build.ArtifactStagingDirectory)\\agent\\Dockerfile'
-  download: $[${{ parameters.DownloadAgent }}]
+- group: AzureDevOps
+- name: agentPackage
+  value: 'none'
+- name: imageRepository
+  value: 'pipeline-agent'
+- name: sourceDir
+  value: '$(build.SourcesDirectory)\\windows\\'
+- name: workingDir
+  value: '$(build.ArtifactStagingDirectory)\\agent\\'
+- name: dockerfilePath
+  value: '$(build.ArtifactStagingDirectory)\\agent\\Dockerfile'
+- name: download
+  value: $[${{ parameters.DownloadAgent }}]
 
 jobs:
 - job: 'BuildAgentImage'
