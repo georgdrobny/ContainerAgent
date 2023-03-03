@@ -25,7 +25,7 @@ spec:
     spec:
       containers:
       - name: agent-win
-        image: containeragent.azurecr.io/pipeline-agent:windows
+        image: georgd.azurecr.io/pipeline-agent:windows
         imagePullPolicy: IfNotPresent
         env:
           - name: VSTS_AGENT_INPUT_URL
@@ -50,9 +50,9 @@ spec:
       imagePullSecrets:
         - name: azurecr
       tolerations:
-        - key: node.kubernetes.io/os
+        - key: kubernetes.io/os
           operator: Equal
-          value: Windows
+          value: windows
           effect: NoSchedule
       nodeSelector:
         kubernetes.io/os: windows

@@ -15,6 +15,12 @@
 [CmdletBinding()]
 Param()
 
+# Workaround for Bug in NerdCtl where the path is wrongly set on Windows
+if ($env:PATH -eq "/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin") {
+    Write-Host "Correcting Path (workaround)" -ForegroundColor Yellow
+    $Env:PATH = "C:\Program Files (x86)\Microsoft SDKs\Azure\CLI2\wbin;C:\Windows\system32;C:\Windows;C:\Windows\System32\Wbem;C:\Windows\System32\WindowsPowerShell\v1.0\;C:\Windows\System32\OpenSSH\;C:\Program Files\dotnet\;C:\Users\ContainerAdministrator\AppData\Local\Microsoft\WindowsApps;C:\Users\ContainerAdministrator\.dotnet\tools;C:\Program Files\NuGet;C:\Program Files (x86)\Microsoft Visual Studio\2022\TestAgent\Common7\IDE\CommonExtensions\Microsoft\TestWindow;C:\Program Files (x86)\Microsoft Visual Studio\2022\BuildTools\MSBuild\Current\Bin\amd64;C:\Program Files (x86)\Microsoft SDKs\Windows\v10.0A\bin\NETFX 4.8 Tools;C:\Program Files (x86)\Microsoft SDKs\ClickOnce\SignTool;"
+}
+
 if ([string]::IsNullOrEmpty($ENV:VSTS_AGENT_INPUT_URL)) {
     Write-Error "Missing Azure DevOps URL!"
     exit 1
