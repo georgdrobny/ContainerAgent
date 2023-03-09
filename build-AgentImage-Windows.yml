@@ -5,16 +5,16 @@ parameters:
   displayName: Download and Install Latest Pipeline Agent
   type: boolean
   default: True
+- name: CustomAgent
+  displayName: Url for Custom Pipline Agent
+  type: string
+  default: " "
 - name: ContainerRegistry
   displayName: Container Registry Service Connection
   default: georgd
   values:
     - georgd
     - gdcontaineragent
-- name: CustomAgent
-  displayName: Url for Custom Pipline Agent
-  type: string
-  default: ""
 
 variables:
 - group: AzureDevOps
