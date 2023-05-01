@@ -8,7 +8,6 @@ parameters:
 - name: CustomAgent
   displayName: Url for Custom Pipline Agent
   type: string
-  default: " "
 - name: ContainerRegistry
   displayName: Container Registry Service Connection
   default: georgd
