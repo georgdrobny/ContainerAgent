@@ -90,7 +90,7 @@ elseif ($IsMacOS) { $Platform = [Platform]::Osx }
 elseif ($IsWindows) { $Platform = [Platform]::Win }
 
 [pscustomobject] $agent = $Null
-if ([string]::IsNullOrEmpty($CustomAgentLocation)) {
+if (([string]::IsNullOrEmpty($CustomAgentLocation)) -or ($CustomAgentLocation.Trim().Length -eq 0)) {
     $agent = Get-LatestAgent $AzureDevopsOrganization $AzureDevopsPersonalAccessToken $Platform
 }
 else {
