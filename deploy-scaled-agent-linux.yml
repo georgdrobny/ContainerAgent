@@ -50,9 +50,16 @@ steps:
     Write-Host "##vso[task.setvariable variable=namespace]$namespace"
   displayName: Get PoolId from PoolName
 - pwsh: |
-    $tags = (az acr repository show-tags --name ${{parameters.repo}} --repository pipeline-agent --output tsv --orderby time_desc)
-    $tags
-  displayName: Find latest Image Tag
+    az extension add -n azure-devops 
+  displayName: 'Install Azure DevOps Extension'
+- task: AzureCLI@2
+  inputs:
+    azureSubscription: 'MCAPS-CH-georgd(d0871d2e-75c2-4b10-bd2c-38f80979d9cb)'
+    scriptType: 'pscore'
+    scriptLocation: 'inlineScript'
+    inlineScript: |
+      $tags = (az acr repository show-tags --name ${{parameters.repo}} --repository pipeline-agent --output tsv --orderby time_desc)
+      $tags
   condition: eq(variables.checkLatest, true)
 - task: HelmDeploy@0
   enabled: false
