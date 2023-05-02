@@ -31,6 +31,8 @@ variables:
   value: 0
 - name: chartPath
   value: 'linux/helm'
+- name: checkLatest
+  value: $[${{ parameters.CheckLatest }}]
 
 pool:
   vmImage: ubuntu-latest
@@ -51,7 +53,7 @@ steps:
     $tags = (az acr repository show-tags --name ${{parameters.repo}} --repository pipeline-agent --output tsv --orderby time_desc)
     $tags
   displayName: Find latest Image Tag
-  condition: eq(parameters.CheckLatest, true)
+  condition: eq(variables.checkLatest, true)
 - task: HelmDeploy@0
   enabled: false
   condition: ne(variables.poolId, 0)
