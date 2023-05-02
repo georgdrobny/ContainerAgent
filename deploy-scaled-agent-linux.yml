@@ -17,7 +17,7 @@ parameters:
 - name: Repo
   displayName: Agent Repo
   type: string
-  default: containeragent
+  default: georgd
   values:
     - containeragent
     - georgd
