@@ -17,6 +17,7 @@ parameters:
 - name: CheckLatest
   displayName: Check for latest Image
   type: boolean
+  default: true
 - name: Repo
   displayName: Agent Repo
   type: string
@@ -69,7 +70,7 @@ steps:
 - pwsh: |
     Write-Host "Using Image:$(agentImage)"
 - task: HelmDeploy@0
-  enabled: false
+  enabled: true
   condition: ne(variables.poolId, 0)
   inputs:
     connectionType: 'Kubernetes Service Connection'
