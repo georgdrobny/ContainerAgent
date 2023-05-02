@@ -57,9 +57,17 @@ steps:
     scriptLocation: 'inlineScript'
     inlineScript: |
       $tags = (az acr repository show-tags --name ${{parameters.repo}} --repository pipeline-agent --output tsv --orderby time_desc)
-      $tags | ForEach-Object { $_, $_ -match "${{parameters.AgentImage}}-\d.\d+.\d" }
+      $AgentImage = $tags | Where-Object { $_ -match "${{parameters.AgentImage}}-\d.\d+.\d" } | Select-Object -First 1
+      Write-Host "##vso[task.setvariable variable=agentImage]$AgentImage"
   condition: eq(variables.checkLatest, true)
-  displayName: Find latest Image Tag
+  displayName: Find last Image Tag
+- pwsh: |
+    $AgentImage = "${{parameters.AgentImage}}-latest"
+    Write-Host "##vso[task.setvariable variable=agentImage]$AgentImage"
+  displayName: Using the 'latest' Image Tag
+  condition: eq(variables.checkLatest, false)
+- pwsh: |
+    Write-Host "Using Image:$(agentImage)"
 - task: HelmDeploy@0
   enabled: false
   condition: ne(variables.poolId, 0)
@@ -70,4 +78,4 @@ steps:
     chartType: 'FilePath'
     chartPath: '$(chartPath)'
     releaseName: '$(namespace)'
-    overrideValues: 'repo=${{parameters.repo}}.azurecr.io,poolId=$(poolId),poolName=${{parameters.PoolName}},tag=${{parameters.AgentImage}},namespace=$(namespace),azpUrl=$(AzureDevOpsOrganization),azpToken=$(AzureDevOpsToken)'
+    overrideValues: 'repo=${{parameters.repo}}.azurecr.io,poolId=$(poolId),poolName=${{parameters.PoolName}},tag=$(AgentImage),namespace=$(namespace),azpUrl=$(AzureDevOpsOrganization),azpToken=$(AzureDevOpsToken)'
