@@ -61,6 +61,7 @@ steps:
       $tags = (az acr repository show-tags --name ${{parameters.repo}} --repository pipeline-agent --output tsv --orderby time_desc)
       $tags
   condition: eq(variables.checkLatest, true)
+  displayName: Find latest Image Tag
 - task: HelmDeploy@0
   enabled: false
   condition: ne(variables.poolId, 0)
