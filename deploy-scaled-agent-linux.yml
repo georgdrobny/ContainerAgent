@@ -14,6 +14,9 @@ parameters:
   values:
     - ubuntu-20.04-latest
     - ubuntu-22.04-latest
+- name: CheckLatest
+  displayName: Check for latest Image
+  type: boolean
 - name: Repo
   displayName: Agent Repo
   type: string
@@ -44,7 +47,13 @@ steps:
     $namespace="{0}-pool-{1}" -f $uri.Segments[-1], $poolId
     Write-Host "##vso[task.setvariable variable=namespace]$namespace"
   displayName: Get PoolId from PoolName
+- pwsh: |
+    $tags = (az acr repository show-tags --name ${{parameters.repo}} --repository pipeline-agent --output tsv --orderby time_desc)
+    $tags
+  displayName: Find latest Image Tag
+  condition: eq(parameters.CheckLatest, true)
 - task: HelmDeploy@0
+  enabled: false
   condition: ne(variables.poolId, 0)
   inputs:
     connectionType: 'Kubernetes Service Connection'
