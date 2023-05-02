@@ -11,7 +11,14 @@ parameters:
 - name: AgentImage
   displayName: Agent Image
   type: string
-  default: windows-2022-2.217.2
+  default: windows-2022
+  values:
+    - windows-2022
+    - windows-2019
+- name: CheckLatest
+  displayName: Check for latest Image
+  type: boolean
+  default: true
 - name: Repo
   displayName: Agent Repo
   type: string
@@ -26,6 +33,8 @@ variables:
   value: 0
 - name: chartPath
   value: 'windows/helm'
+- name: checkLatest
+  value: $[${{ parameters.CheckLatest }}]
 
 pool:
   vmImage: ubuntu-latest
@@ -40,9 +49,29 @@ steps:
     Write-Host "##vso[task.setvariable variable=poolId]$poolId"
     [System.Uri] $uri = [System.Uri]::new("$(AzureDevOpsOrganization)")
     $namespace="{0}-pool-{1}" -f $uri.Segments[-1], $poolId
+    Write-Host "Poolid:$poolId"
     Write-Host "##vso[task.setvariable variable=namespace]$namespace"
   displayName: Get PoolId from PoolName
+- task: AzureCLI@2
+  inputs:
+    azureSubscription: 'MCAPS-CH-georgd(d0871d2e-75c2-4b10-bd2c-38f80979d9cb)'
+    scriptType: 'pscore'
+    scriptLocation: 'inlineScript'
+    inlineScript: |
+      $tags = (az acr repository show-tags --name ${{parameters.repo}} --repository pipeline-agent --output tsv --orderby time_desc)
+      $AgentImage = $tags | Where-Object { $_ -match "${{parameters.AgentImage}}-\d.\d+.\d" } | Select-Object -First 1
+      Write-Host "##vso[task.setvariable variable=agentImage]$AgentImage"
+  condition: eq(variables.checkLatest, true)
+  displayName: Find last Image Tag
+- pwsh: |
+    $AgentImage = "${{parameters.AgentImage}}-latest"
+    Write-Host "##vso[task.setvariable variable=agentImage]$AgentImage"
+  displayName: Using the 'latest' Image Tag
+  condition: eq(variables.checkLatest, false)
+- pwsh: |
+    Write-Host "Using Image:$(agentImage)"
 - task: HelmDeploy@0
+  enabled: true
   condition: ne(variables.poolId, 0)
   inputs:
     connectionType: 'Kubernetes Service Connection'
@@ -51,4 +80,4 @@ steps:
     chartType: 'FilePath'
     chartPath: '$(chartPath)'
     releaseName: '$(namespace)'
-    overrideValues: 'repo=${{parameters.repo}}.azurecr.io,poolId=$(poolId),poolName=${{parameters.PoolName}},tag=${{parameters.AgentImage}},namespace=$(namespace),azpUrl=$(AzureDevOpsOrganization),azpToken=$(AzureDevOpsToken)'
+    overrideValues: 'repo=${{parameters.repo}}.azurecr.io,poolId=$(poolId),poolName=${{parameters.PoolName}},tag=$(agentImage),namespace=$(namespace),azpUrl=$(AzureDevOpsOrganization),azpToken=$(AzureDevOpsToken)'
