@@ -10,10 +10,10 @@ parameters:
 - name: AgentImage
   displayName: Agent Image
   type: string
-  default: ubuntu-20.04-latest
+  default: ubuntu-22.04
   values:
-    - ubuntu-20.04-latest
-    - ubuntu-22.04-latest
+    - ubuntu-20.04
+    - ubuntu-22.04
 - name: CheckLatest
   displayName: Check for latest Image
   type: boolean
@@ -47,11 +47,9 @@ steps:
     Write-Host "##vso[task.setvariable variable=poolId]$poolId"
     [System.Uri] $uri = [System.Uri]::new("$(AzureDevOpsOrganization)")
     $namespace="{0}-pool-{1}" -f $uri.Segments[-1], $poolId
+    Write-Host "Poolid:$poolId"
     Write-Host "##vso[task.setvariable variable=namespace]$namespace"
   displayName: Get PoolId from PoolName
-- pwsh: |
-    az extension add -n azure-devops 
-  displayName: 'Install Azure DevOps Extension'
 - task: AzureCLI@2
   inputs:
     azureSubscription: 'MCAPS-CH-georgd(d0871d2e-75c2-4b10-bd2c-38f80979d9cb)'
@@ -59,7 +57,7 @@ steps:
     scriptLocation: 'inlineScript'
     inlineScript: |
       $tags = (az acr repository show-tags --name ${{parameters.repo}} --repository pipeline-agent --output tsv --orderby time_desc)
-      $tags
+      $tags | ForEach-Object { $_, $_ -match "${{parameters.AgentImage}}-\d.\d+.\d" }
   condition: eq(variables.checkLatest, true)
   displayName: Find latest Image Tag
 - task: HelmDeploy@0
