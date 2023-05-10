@@ -11,6 +11,6 @@ ENV AZP_AGENT_DOWNGRADE_DISABLED=true
 
 RUN powershell -Command $ProgressPreference = 'SilentlyContinue'; Invoke-WebRequest -Uri https://aka.ms/installazurecliwindows -OutFile .\AzureCLI.msi; Start-Process msiexec.exe -Wait -ArgumentList '/I AzureCLI.msi /quiet'; rm .\AzureCLI.msi
 
-WORKDIR /agent
-COPY . /agent
-CMD C:\Windows\System32\WindowsPowershell\V1.0\powershell.exe -File .\LaunchAgent.ps1
+WORKDIR /Agent
+COPY . /Agent
+CMD C:\Windows\System32\WindowsPowershell\V1.0\powershell.exe -File C:\Agent\LaunchAgent.ps1
