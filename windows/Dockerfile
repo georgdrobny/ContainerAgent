@@ -13,4 +13,5 @@ RUN powershell -Command $ProgressPreference = 'SilentlyContinue'; Invoke-WebRequ
 
 WORKDIR /Agent
 COPY . /Agent
-CMD C:\Windows\System32\WindowsPowershell\V1.0\powershell.exe -File C:\Agent\LaunchAgent.ps1
+CMD C:/Windows/System32/WindowsPowershell/V1.0/powershell.exe -File C:/Agent/LaunchAgent.ps1
+
