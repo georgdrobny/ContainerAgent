@@ -72,7 +72,7 @@ jobs:
         scriptType: 'pscore'
         scriptLocation: 'inlineScript'
         inlineScript: |
-          $KEY_ID=$(az keyvault certificate show -n $(CodeSignName) --vault-name $(KVName) --query 'kid' -o tsv)
+          $KEY_ID=$(az keyvault certificate show -n ${ENV:CodeSignName} --vault-name ${ENV:KVName} --query 'kid' -o tsv)
           $KEY_ID
 
 
