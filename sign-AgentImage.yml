@@ -19,14 +19,14 @@ variables:
 
 jobs:
 - job: 'SignAgentImage'
-  displayName Sign Agent Image
-pool:
-    vmImage: $(vmImage)
-  
-steps:
-  - pwsh: |
-      Invoke-WebRequest -Uri $(notationUrl) -OutFile $(Build.ArtifactStagingDirectory)\notation.zip
-      Unblock-File -Path $(Build.ArtifactStagingDirectory)\notation.zip
-      Expand-Archive -Path $(Build.ArtifactStagingDirectory)\notation.zip -DestinationPath $(Build.ArtifactStagingDirectory)\notation\ -Force
-      Get-ChildItem $(Build.ArtifactStagingDirectory)\notation\
-    displayName: 'Download Notation Package'
+  displayName: Sign Agent Image
+  pool:
+      vmImage: $(vmImage)
+    
+  steps:
+    - pwsh: |
+        Invoke-WebRequest -Uri $(notationUrl) -OutFile $(Build.ArtifactStagingDirectory)\notation.zip
+        Unblock-File -Path $(Build.ArtifactStagingDirectory)\notation.zip
+        Expand-Archive -Path $(Build.ArtifactStagingDirectory)\notation.zip -DestinationPath $(Build.ArtifactStagingDirectory)\notation\ -Force
+        Get-ChildItem $(Build.ArtifactStagingDirectory)\notation\
+      displayName: 'Download Notation Package'
