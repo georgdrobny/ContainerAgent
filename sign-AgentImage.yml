@@ -3,19 +3,25 @@ trigger: none
 parameters:
 - name: KVName
   displayName: Name of Key Vault
+  type: string
   default: KV-Sign
+
 - name: CodeSignName
   displayName: Name of the Code Signing Certificate in Key Vault
+  type: string
   default: DigicertCodeSign
+
 - name: ContainerRegistry
   displayName: Container Registry Service Connection
   default: georgd
   values:
     - georgd
     - gdcontaineragent
-- name: ImageHash
-  displayName: ImageHash of the image to sign
+
+- name: ImageToSign
+  displayName: Image to sign
   type: string
+  default: pipeline-agent:sha256:e7038e07abc0830ee75652bc55bb8a166cece08faf2f55ccab0285d595c9fdce
 
 variables:
 - name: vmImage
@@ -88,5 +94,6 @@ jobs:
           $KEY_ID=$(az keyvault certificate show -n ${{ parameters.CodeSignName }} --vault-name ${{parameters.KVName }} --query 'kid' -o tsv)
           $(Build.ArtifactStagingDirectory)\notation\notation.exe key add ${{ parameters.CodeSignName }} --plugin azure-kv --id $KEY_ID | Out-Null
           $(Build.ArtifactStagingDirectory)\notation\notation.exe key ls
+          $(Build.ArtifactStagingDirectory)\notation\notation.exe sign --signature-format cose --key ${{ parameters.CodeSignName }} ${{ parameters.ContainerRegistry}}.azurecr.io/${{ parameters.ImageToSign }}
 
 
