@@ -86,6 +86,7 @@ jobs:
         $(Build.ArtifactStagingDirectory)\notation\notation.exe cert ls
       displayName: 'Import Digicert CA certificates into Notation trusted store'
     - task: AzureCLI@2
+      displayName: Sign the Image ${{ parameters.ImageToSign }}
       inputs:
         azureSubscription: 'MCAPS-CH-georgd(d0871d2e-75c2-4b10-bd2c-38f80979d9cb)'
         scriptType: 'pscore'
