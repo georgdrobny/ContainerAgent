@@ -73,6 +73,7 @@ jobs:
         scriptLocation: 'inlineScript'
         inlineScript: |
           $KEY_ID=$(az keyvault certificate show -n ${{ parameters.CodeSignName }} --vault-name ${{parameters.KVName }} --query 'kid' -o tsv)
-          $KEY_ID
+          $(Build.ArtifactStagingDirectory)\notation\notation.exe key add ${{ parameters.CodeSignName }} --plugin azure-kv --id $KEY_ID
+          $(Build.ArtifactStagingDirectory)\notation\notation.exe key ls
 
 
