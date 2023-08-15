@@ -27,18 +27,27 @@ jobs:
     
   steps:
     - pwsh: |
-        Invoke-WebRequest -Uri "https://github.com/notaryproject/notation/releases/download/v$(notationVersion)/notation_$(notationVersion)_windows_amd64.zip" -OutFile $(Build.ArtifactStagingDirectory)\notation.zip
-        Unblock-File -Path $(Build.ArtifactStagingDirectory)\notation.zip
-        Expand-Archive -Path $(Build.ArtifactStagingDirectory)\notation.zip -DestinationPath $(Build.ArtifactStagingDirectory)\notation\ -Force
+        $installPath = "$(Build.ArtifactStagingDirectory)\notation\"
+        # download zip file and checksum
+        $checksumFile = "notation_$(notationVersion)_checksums.txt"
+        $zipFile = "notation_$(notationVersion)_windows_amd64.zip"
+        Invoke-WebRequest -Uri "https://github.com/notaryproject/notation/releases/download/v$(notationVersion)/${checkSumFile}" -OutFile ${checksumFile}
+        Invoke-WebRequest -Uri "https://github.com/notaryproject/notation/releases/download/v$(notationVersion)/${zipFile}" -OutFile ${zipFile}
+        # validate checksum
+        $checksum = (Get-Content$(Build.ArtifactStagingDirectory)\notationChecksums.zip | Select-String -List ${zipFile}).Line.Split() | Where-Object {$_}
+        If ($checksum[0] -ne (Get-FileHash -Algorithm SHA256 $checksum[1]).Hash) {
+          throw "$($checksum[1]): Failed"
+        }
+        # install notation
+        Unblock-File -Path ${zipFile}
+        Expand-Archive -Path ${zipFile} -DestinationPath $(Build.ArtifactStagingDirectory)\notation\ -Force
         Get-ChildItem $(Build.ArtifactStagingDirectory)\notation\
       displayName: 'Download Notation $(notationVersion) Package'
     - pwsh: |
         $installPath = "${env:AppData}\notation\plugins\azure-kv"
         # download zip file and checksum
-        $checksumFile = "notation-azure-kv_$(notation_kv_version)_checksum.txt"
+        $checksumFile = "notation-azure-kv_$(notation_kv_version)_checksums.txt"
         $zipFile = "notation-azure-kv_$(notation_kv_version)_windows_amd64.zip"
-        Write-Host "https://github.com/Azure/notation-azure-kv/releases/download/v$(notation_kv_version)/${checksumFile}"
-        Write-Host "https://github.com/Azure/notation-azure-kv/releases/download/v$(notation_kv_version)/${zipFile}"
         Invoke-WebRequest -Uri "https://github.com/Azure/notation-azure-kv/releases/download/v$(notation_kv_version)/${checksumFile}" -OutFile ${checksumFile}
         Invoke-WebRequest -Uri "https://github.com/Azure/notation-azure-kv/releases/download/v$(notation_kv_version)/${zipFile}" -OutFile ${zipFile}
         # validate checksum
