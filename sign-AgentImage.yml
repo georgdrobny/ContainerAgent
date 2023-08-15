@@ -1,15 +1,20 @@
 trigger: none
 
 parameters:
-- name: ImageHash
-  displayName: ImageHash of the image to sign
-  type: string
+- name: KVName
+  displayName: Name of Key Vault
+  default: KV-Sign
+- name: CodeSignName
+  displayName: Name of the Code Signing Certificate in Key Vault
 - name: ContainerRegistry
   displayName: Container Registry Service Connection
   default: georgd
   values:
     - georgd
     - gdcontaineragent
+- name: ImageHash
+  displayName: ImageHash of the image to sign
+  type: string
 
 variables:
 - name: vmImage
@@ -41,7 +46,7 @@ jobs:
         # install notation
         Unblock-File -Path ${zipFile}
         Expand-Archive -Path ${zipFile} -DestinationPath $(Build.ArtifactStagingDirectory)\notation\ -Force
-        Get-ChildItem $(Build.ArtifactStagingDirectory)\notation\
+        $(Build.ArtifactStagingDirectory)\notation\notation.exe version
       displayName: 'Download Notation $(notationVersion) Package'
     - pwsh: |
         $installPath = "${env:AppData}\notation\plugins\azure-kv"
@@ -56,10 +61,17 @@ jobs:
           throw "$($checksum[1]): Failed"
         }
         # install the plugin
-        mkdir ${installPath}
         Unblock-File -Path ${zipFile}
         Expand-Archive -Path ${zipFile} -DestinationPath ${installPath}
         $(Build.ArtifactStagingDirectory)\notation\notation.exe plugin list
       displayName: 'Install Notation Azure KeyVault $(notation_kv_version) Plugin '
+    - task: AzureCLI@2
+      inputs:
+        azureSubscription: 'MCAPS-CH-georgd(d0871d2e-75c2-4b10-bd2c-38f80979d9cb)'
+        scriptType: 'pscore'
+        scriptLocation: 'inlineScript'
+        inlineScript: |
+          $KEY_ID=$(az keyvault certificate show -n $(CodeSignName) --vault-name $(KVName) --query 'kid' -o tsv)
+          $KEY_ID
 
 
