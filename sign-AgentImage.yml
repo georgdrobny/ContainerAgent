@@ -37,8 +37,10 @@ jobs:
         # download zip file and checksum
         $checksumFile = "notation-azure-kv_$(notation_kv_version)_checksum.txt"
         $zipFile = "notation-azure-kv_$(notation_kv_version)_windows_amd64.zip"
-        Invoke-WebRequest "https://github.com/Azure/notation-azure-kv/releases/download/v$(notation_kv_version)/${checksumFile}" -OutFile ${checksumFile}
-        Invoke-WebRequest -OutFile ${zipFile} "https://github.com/Azure/notation-azure-kv/releases/download/v$(notation_kv_version)/${zipFile}"
+        Write-Host "https://github.com/Azure/notation-azure-kv/releases/download/v$(notation_kv_version)/${checksumFile}"
+        Write-Host "https://github.com/Azure/notation-azure-kv/releases/download/v$(notation_kv_version)/${zipFile}"
+        Invoke-WebRequest -Uri "https://github.com/Azure/notation-azure-kv/releases/download/v$(notation_kv_version)/${checksumFile}" -OutFile ${checksumFile}
+        Invoke-WebRequest -Uri "https://github.com/Azure/notation-azure-kv/releases/download/v$(notation_kv_version)/${zipFile}" -OutFile ${zipFile}
         # validate checksum
         $checksum = (Get-Content ${checksumFile} | Select-String -List ${zipFile}).Line.Split() | Where-Object {$_}
         If ($checksum[0] -ne (Get-FileHash -Algorithm SHA256 $checksum[1]).Hash) {
