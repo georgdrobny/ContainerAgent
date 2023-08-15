@@ -75,8 +75,9 @@ jobs:
       inputs:
         secureFile: 'DigiCert Trusted Root G4.pem'
     - pwsh: |
-        $(Build.ArtifactStagingDirectory)\notation\notation.exe cert add --type ca --store trusted "$(signCA.secureFilePath)", "$(rootCA.secureFilePath)"
-         $(Build.ArtifactStagingDirectory)\notation\notation.exe cert ls
+        $(Build.ArtifactStagingDirectory)\notation\notation.exe cert add --type ca --store trusted "$(signCA.secureFilePath)"
+        $(Build.ArtifactStagingDirectory)\notation\notation.exe cert add --type ca --store trusted "$(rootCA.secureFilePath)"
+        $(Build.ArtifactStagingDirectory)\notation\notation.exe cert ls
       displayName: 'Import Digicert CA certificates into Notation trusted store'
     - task: AzureCLI@2
       inputs:
