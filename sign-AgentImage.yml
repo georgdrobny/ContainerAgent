@@ -16,7 +16,7 @@ variables:
   value: 'windows-latest'
 - name: notationVersion
   value: '1.0.0-rc.7'
-- name: notation-kv-version
+- name: notation_kv_version
   value: '1.0.0'
 
 jobs:
@@ -27,7 +27,7 @@ jobs:
     
   steps:
     - pwsh: |
-        Invoke-WebRequest -Uri 'https://github.com/notaryproject/notation/releases/download/v$(notationVersion)/notation_$(notationVersion)_windows_amd64.zip' -OutFile $(Build.ArtifactStagingDirectory)\notation.zip
+        Invoke-WebRequest -Uri "https://github.com/notaryproject/notation/releases/download/v$(notationVersion)/notation_$(notationVersion)_windows_amd64.zip" -OutFile $(Build.ArtifactStagingDirectory)\notation.zip
         Unblock-File -Path $(Build.ArtifactStagingDirectory)\notation.zip
         Expand-Archive -Path $(Build.ArtifactStagingDirectory)\notation.zip -DestinationPath $(Build.ArtifactStagingDirectory)\notation\ -Force
         Get-ChildItem $(Build.ArtifactStagingDirectory)\notation\
@@ -35,10 +35,10 @@ jobs:
     - pwsh: |
         $installPath = "${env:AppData}\notation\plugins\azure-kv"
         # download zip file and checksum
-        $checksumFile = "notation-azure-kv_$(notation-kv-version)_checksum.txt"
-        $zipFile = "notation-azure-kv_$(notation-kv-version)_windows_amd64.zip"
-        Invoke-WebRequest -OutFile ${checksumFile} "https://github.com/Azure/notation-azure-kv/releases/download/v$(notation-kv-version)/${checksumFile}"
-        Invoke-WebRequest -OutFile ${zipFile} "https://github.com/Azure/notation-azure-kv/releases/download/v$(notation-kv-version)/${zipFile}"
+        $checksumFile = "notation-azure-kv_$(notation_kv_version)_checksum.txt"
+        $zipFile = "notation-azure-kv_$(notation_kv_version)_windows_amd64.zip"
+        Invoke-WebRequest "https://github.com/Azure/notation-azure-kv/releases/download/v$(notation_kv_version)/${checksumFile}" -OutFile ${checksumFile}
+        Invoke-WebRequest -OutFile ${zipFile} "https://github.com/Azure/notation-azure-kv/releases/download/v$(notation_kv_version)/${zipFile}"
         # validate checksum
         $checksum = (Get-Content ${checksumFile} | Select-String -List ${zipFile}).Line.Split() | Where-Object {$_}
         If ($checksum[0] -ne (Get-FileHash -Algorithm SHA256 $checksum[1]).Hash) {
