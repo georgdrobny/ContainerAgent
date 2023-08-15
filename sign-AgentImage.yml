@@ -81,8 +81,32 @@ jobs:
       inputs:
         secureFile: 'DigiCert Trusted Root G4.pem'
     - pwsh: |
+        $(Build.ArtifactStagingDirectory)\notation\notation.exe cert add --type ca --store trusted "$(signCA.secureFilePath)"
+        $(Build.ArtifactStagingDirectory)\notation\notation.exe cert add --type ca --store trusted "$(rootCA.secureFilePath)"
+        $(Build.ArtifactStagingDirectory)\notation\notation.exe cert ls
         Get-Content "$(signCA.secureFilePath)", "$(rootCA.secureFilePath)" | Set-Content $(Build.ArtifactStagingDirectory)\rootCA.pem
-      displayName: 'Create Digicert CA certificates bundle'
+        $policy = @'
+        {
+        "version": "1.0",
+        "trustPolicies": [
+            {
+                "name": "trust-policy-example",
+                "registryScopes": [ "*" ],
+                "signatureVerification": {
+                    "level" : "strict" 
+                },
+                "trustStores": [ "ca:trusted" ],
+                "trustedIdentities": [
+                    "*"
+                ]
+            }
+        ]
+        }
+        '@
+        $policy | Set-Content .\TrustPolicy.json
+        $(Build.ArtifactStagingDirectory)\notation\notation.exe policy import .\trustpolicy.json
+        $(Build.ArtifactStagingDirectory)\notation\notation.exe policy show
+      displayName: 'Create Digicert CA certificates bundle and Trust Policy'
     - task: AzureCLI@2
       displayName: Sign the Image ${{ parameters.ImageToSign }}
       inputs:
@@ -95,5 +119,5 @@ jobs:
           $(Build.ArtifactStagingDirectory)\notation\notation.exe key ls
           az acr login --name ${{ parameters.ContainerRegistry}}
           $(Build.ArtifactStagingDirectory)\notation\notation.exe sign --signature-format cose --key ${{ parameters.CodeSignName }} ${{ parameters.ContainerRegistry}}.azurecr.io/${{ parameters.ImageToSign }} --plugin-config=ca_certs="$(Build.ArtifactStagingDirectory)\rootCA.pem"
-
+          $(Build.ArtifactStagingDirectory)\notation\notation.exe verify ${{ parameters.ContainerRegistry}}.azurecr.io/${{ parameters.ImageToSign }}
 
