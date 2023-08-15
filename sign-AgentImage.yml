@@ -46,8 +46,9 @@ jobs:
         }
         # install the plugin
         mkdir ${installPath}
+        Unblock-File -Path ${zipFile}
         Expand-Archive -Path ${zipFile} -DestinationPath ${installPath}
         $(Build.ArtifactStagingDirectory)\notation\notation.exe plugin list
-      displayName: 'Install Notation Azure KeyVault Plugin '
+      displayName: 'Install Notation Azure KeyVault $(notation_kv_version) Plugin '
 
 
