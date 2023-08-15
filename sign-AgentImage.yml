@@ -72,8 +72,7 @@ jobs:
         scriptType: 'pscore'
         scriptLocation: 'inlineScript'
         inlineScript: |
-          get-childitem env:
-          $KEY_ID=$(az keyvault certificate show -n ${ENV:CodeSignName} --vault-name ${ENV:KVName} --query 'kid' -o tsv)
+          $KEY_ID=$(az keyvault certificate show -n ${{ parameters.CodeSignName }} --vault-name ${{parameters.KVName }} --query 'kid' -o tsv)
           $KEY_ID
 
 
