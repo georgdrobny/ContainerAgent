@@ -66,6 +66,18 @@ jobs:
         Expand-Archive -Path ${zipFile} -DestinationPath ${installPath}
         $(Build.ArtifactStagingDirectory)\notation\notation.exe plugin list
       displayName: 'Install Notation Azure KeyVault $(notation_kv_version) Plugin '
+    - task: DownloadSecureFile@1
+      name: signCA
+      inputs:
+        secureFile: 'DigiCert Trusted G4 Code Signing RSA4096 SHA384 2021 CA1.pem'
+    - task: DownloadSecureFile@1
+      name: rootCA
+      inputs:
+        secureFile: 'DigiCert Trusted Root G4.pem'
+    - pwsh: |
+        $(Build.ArtifactStagingDirectory)\notation\notation.exe cert add --type ca --store trusted $(signCA.secureFilePath), $(rootCA.secureFilePath)
+         $(Build.ArtifactStagingDirectory)\notation\notation.exe cert ls
+      displayName: 'Import Digicert CA certificates into Notation trusted store'
     - task: AzureCLI@2
       inputs:
         azureSubscription: 'MCAPS-CH-georgd(d0871d2e-75c2-4b10-bd2c-38f80979d9cb)'
@@ -73,7 +85,7 @@ jobs:
         scriptLocation: 'inlineScript'
         inlineScript: |
           $KEY_ID=$(az keyvault certificate show -n ${{ parameters.CodeSignName }} --vault-name ${{parameters.KVName }} --query 'kid' -o tsv)
-          $(Build.ArtifactStagingDirectory)\notation\notation.exe key add ${{ parameters.CodeSignName }} --plugin azure-kv --id $KEY_ID
+          $(Build.ArtifactStagingDirectory)\notation\notation.exe key add ${{ parameters.CodeSignName }} --plugin azure-kv --id $KEY_ID | Out-Null
           $(Build.ArtifactStagingDirectory)\notation\notation.exe key ls
 
 
