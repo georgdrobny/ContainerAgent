@@ -95,6 +95,7 @@ jobs:
           $KEY_ID=$(az keyvault certificate show -n ${{ parameters.CodeSignName }} --vault-name ${{parameters.KVName }} --query 'kid' -o tsv)
           $(Build.ArtifactStagingDirectory)\notation\notation.exe key add ${{ parameters.CodeSignName }} --plugin azure-kv --id $KEY_ID | Out-Null
           $(Build.ArtifactStagingDirectory)\notation\notation.exe key ls
+          az acr login --name ${{ parameters.ContainerRegistry}}
           $(Build.ArtifactStagingDirectory)\notation\notation.exe sign --signature-format cose --key ${{ parameters.CodeSignName }} ${{ parameters.ContainerRegistry}}.azurecr.io/${{ parameters.ImageToSign }}
 
 
