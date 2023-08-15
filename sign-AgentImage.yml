@@ -21,7 +21,7 @@ parameters:
 - name: ImageToSign
   displayName: Image to sign
   type: string
-  default: pipeline-agent:sha256:e7038e07abc0830ee75652bc55bb8a166cece08faf2f55ccab0285d595c9fdce
+  default: pipeline-agent:@sha256:e7038e07abc0830ee75652bc55bb8a166cece08faf2f55ccab0285d595c9fdce
 
 variables:
 - name: vmImage
