@@ -81,10 +81,8 @@ jobs:
       inputs:
         secureFile: 'DigiCert Trusted Root G4.pem'
     - pwsh: |
-        $(Build.ArtifactStagingDirectory)\notation\notation.exe cert add --type ca --store trusted "$(signCA.secureFilePath)"
-        $(Build.ArtifactStagingDirectory)\notation\notation.exe cert add --type ca --store trusted "$(rootCA.secureFilePath)"
-        $(Build.ArtifactStagingDirectory)\notation\notation.exe cert ls
-      displayName: 'Import Digicert CA certificates into Notation trusted store'
+        Get-Content "$(signCA.secureFilePath)", "$(rootCA.secureFilePath)" | Set-Content $(Build.ArtifactStagingDirectory)\rootCA.pem
+      displayName: 'Create Digicert CA certificates bundle'
     - task: AzureCLI@2
       displayName: Sign the Image ${{ parameters.ImageToSign }}
       inputs:
@@ -96,6 +94,6 @@ jobs:
           $(Build.ArtifactStagingDirectory)\notation\notation.exe key add ${{ parameters.CodeSignName }} --plugin azure-kv --id $KEY_ID | Out-Null
           $(Build.ArtifactStagingDirectory)\notation\notation.exe key ls
           az acr login --name ${{ parameters.ContainerRegistry}}
-          $(Build.ArtifactStagingDirectory)\notation\notation.exe sign --signature-format cose --key ${{ parameters.CodeSignName }} ${{ parameters.ContainerRegistry}}.azurecr.io/${{ parameters.ImageToSign }}
+          $(Build.ArtifactStagingDirectory)\notation\notation.exe sign --signature-format cose --key ${{ parameters.CodeSignName }} ${{ parameters.ContainerRegistry}}.azurecr.io/${{ parameters.ImageToSign }} --plugin-config=ca_certs="$(Build.ArtifactStagingDirectory)\rootCA.pem"
 
 
