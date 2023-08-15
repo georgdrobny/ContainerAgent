@@ -6,6 +6,7 @@ parameters:
   default: KV-Sign
 - name: CodeSignName
   displayName: Name of the Code Signing Certificate in Key Vault
+  default: DigicertCodeSign
 - name: ContainerRegistry
   displayName: Container Registry Service Connection
   default: georgd
