@@ -17,7 +17,7 @@ variables:
 - name: notationVersion
   value: '1.0.0-rc.7'
 - name: notation_kv_version
-  value: '1.0.0'
+  value: '1.0.0-rc.3'
 
 jobs:
 - job: 'SignAgentImage'
