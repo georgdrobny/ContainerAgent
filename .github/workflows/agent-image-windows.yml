@@ -42,5 +42,5 @@ jobs:
         password: ${{ secrets.ACR_PASSWORD }}
     - name: Push Windows Pipeline Agent Image
       run: |
-        docker tag pipeline-agent:${{ env.tag }} ${{ secrets.ACR_NAME }}.azurecr.io/pipeline-agent:${{ env.tag }}
-        docker push ${{ secrets.ACR_NAME }}.azurecr.io/pipeline-agent:${{ env.tag }}
+        docker tag pipeline-agent-gh:${{ env.tag }} ${{ secrets.ACR_NAME }}.azurecr.io/pipeline-agent-gh:${{ env.tag }}
+        docker push ${{ secrets.ACR_NAME }}.azurecr.io/pipeline-agent-gh:${{ env.tag }}
