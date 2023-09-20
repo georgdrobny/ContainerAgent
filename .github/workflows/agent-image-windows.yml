@@ -31,7 +31,7 @@ jobs:
       if: ${{ github.event.inputs.downloadAgent == 'true' }}
     - name: Build Windows Pipeline Agent Image
       run: |
-        $tag = windows/BuildAgentImage.ps1 -WorkingDir '${{ runner.temp }}\agent\' -SourceDir '${{ github.workspace }}\windows\' -AgentPackage $ENV:agentPackage -BaseImage ${{ matrix.baseImageName }} -Tag ${{ matrix.repoName }} -BuildImage
+        $tag = windows/BuildAgentImage.ps1 -WorkingDir '${{ runner.temp }}\agent\' -SourceDir '${{ github.workspace }}\windows\' -AgentPackage $ENV:agentPackage -BaseImage ${{ matrix.baseImageName }} -AgentRepository pipeline-agent-gh -Tag ${{ matrix.repoName }} -BuildImage
         Write-Output "tag=$tag" | Out-File -FilePath $Env:GITHUB_ENV -Encoding utf-8 -Append
       shell: pwsh
     - name: Login to Azure Container Registry
