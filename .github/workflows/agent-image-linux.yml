@@ -31,7 +31,7 @@ jobs:
       if: ${{ github.event.inputs.downloadAgent == 'true' }}
     - name: Prepare Linux Pipeline Agent Image
       run: |
-        $tag = linux/BuildAgentImage.ps1 -WorkingDir '${{ runner.temp }}/agent/' -SourceDir '${{ github.workspace }}/linux/' -AgentPackage $ENV:agentPackage -Tag ${{ matrix.repoName }} -Dockerfile ${{ matrix.dockerfile }}
+        $tag = linux/BuildAgentImage.ps1 -WorkingDir '${{ runner.temp }}/agent/' -SourceDir '${{ github.workspace }}/linux/' -AgentPackage $ENV:agentPackage -AgentRepository pipeline-agent-gh -Tag ${{ matrix.repoName }} -Dockerfile ${{ matrix.dockerfile }}
         Write-Output "tag=$tag" | Out-File -FilePath $Env:GITHUB_ENV -Encoding utf-8 -Append
       shell: pwsh
     - name: Login to Azure Container Registry
