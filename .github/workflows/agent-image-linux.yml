@@ -50,5 +50,5 @@ jobs:
         context: ${{ runner.temp }}/agent
         file: ${{ runner.temp }}/agent/${{ matrix.dockerfile }}
         push: true
-        tags: ${{ secrets.ACR_NAME }}.azurecr.io/pipeline-agent:${{ env.tag }}
+        tags: ${{ secrets.ACR_NAME }}.azurecr.io/pipeline-agent-gh:${{ env.tag }}
       if: ${{ 'true' == 'true' }}
