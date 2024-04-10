@@ -130,12 +130,21 @@ The pipeline builds an image for **Ubuntu 20.04** and **Ubuntu 22.04** using the
 ### Autoscaling Azure Pipelines Container Agent with KEDA
 If you run your Azure Pipelines Container in Kubernetes, you scale the number of Agents dynamically based on the number of requests waiting in associated Pool/Queue by using [KEDA](https://keda.sh/).
 
-Deploy KEDA to your Kuberntes Cluster based on your preferred Method. 
+Deploy KEDA to your Kuberntes Cluster based on your preferred Method. If you use Azure Kubernetes Service (AKS) you should either create a new KEDA enabled AKS Cluster or enable it on an existing AKS cluster.
+See also [KEDA add-on](https://learn.microsoft.com/en-us/azure/aks/keda-about)
 
 - Example Deploying KEDA with a manifest
 
     ```kubectl apply -f https://github.com/kedacore/keda/releases/download/v2.4.0/keda-2.4.0.yaml```
 
+- Example Creating a new AKS cluster with KEDA add-on enabled.
+
+     ```az aks create --resource-group myResourceGroup --name myAKSCluster --enable-keda```
+
+- Example Enabling the KDEA add-on on an exisiting AKS cluster
+
+     ```az aks update --resource-group myResourceGroup --name myAKSCluster --enable-keda```
+  
 - Example running Azure Pipelines Container Agent with Autoscaling
  
 >[pipelineagent_BuildTools_Autoscale.yml](windows/pipelineagent_BuildTools_Autoscale.yml)
