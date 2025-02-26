@@ -11,10 +11,11 @@ parameters:
   default: " "
 - name: ContainerRegistry
   displayName: Container Registry Service Connection
-  default: georgd
+  default: georgmcaps
   values:
     - georgd
     - gdcontaineragent
+    - georgmcaps
 
 variables:
 - group: AzureDevOps
