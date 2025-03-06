@@ -14,6 +14,7 @@ parameters:
   values:
     - georgd
     - gdcontaineragent
+    - georgmcaps
 
 variables:
 - group: AzureDevOps
