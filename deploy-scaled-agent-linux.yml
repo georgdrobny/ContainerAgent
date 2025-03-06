@@ -40,10 +40,6 @@ pool:
   vmImage: ubuntu-latest
 
 steps:
-- task: HelmInstaller@0
-  inputs:
-    helmVersion: '3.8.0'
-    installKubectl: false
 - pwsh: |
     $poolId = common/GetPoolId.ps1 -AzureDevOpsOrganization $(AzureDevOpsOrganization) -AzureDevOpsPersonalAccessToken $(AzureDevOpsToken) -PoolName ${{ parameters.PoolName }}
     Write-Host "##vso[task.setvariable variable=poolId]$poolId"
@@ -71,10 +67,12 @@ steps:
   condition: eq(variables.checkLatest, false)
 - pwsh: |
     Write-Host "Using Image:$(agentImage)"
+  displayName: Pipeline Agent Image Tag
 - task: KubeloginInstaller@0
   inputs:
     kubeloginVersion: 'latest'
-- task: HelmDeploy@1
+
+- task: HelmDeploy@0
   enabled: true
   condition: ne(variables.poolId, 0)
   inputs:
@@ -82,7 +80,6 @@ steps:
     azureSubscription: 'mcap-453255'
     azureResourceGroup: 'aks-mixed'
     kubernetesCluster: 'aks-mixed'
-    useClusterAdmin: true
     command: 'install'
     chartType: 'FilePath'
     chartPath: '$(chartPath)'
