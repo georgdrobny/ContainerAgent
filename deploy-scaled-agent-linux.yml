@@ -54,7 +54,7 @@ steps:
   displayName: Get PoolId from PoolName
 - task: AzureCLI@2
   inputs:
-    azureSubscription: 'MCAPS-CH-georgd(d0871d2e-75c2-4b10-bd2c-38f80979d9cb)'
+    azureSubscription: 'mcap-453255'
     scriptType: 'pscore'
     scriptLocation: 'inlineScript'
     inlineScript: |
