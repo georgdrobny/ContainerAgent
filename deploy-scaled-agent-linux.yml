@@ -70,7 +70,10 @@ steps:
   condition: eq(variables.checkLatest, false)
 - pwsh: |
     Write-Host "Using Image:$(agentImage)"
-- task: HelmDeploy@0
+- task: KubeloginInstaller@0
+  inputs:
+    kubeloginVersion: 'latest'
+- task: HelmDeploy@1
   enabled: true
   condition: ne(variables.poolId, 0)
   inputs:
