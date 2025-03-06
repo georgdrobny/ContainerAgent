@@ -10,7 +10,7 @@ parameters:
   default: True
 - name: ContainerRegistry
   displayName: Container Registry Service Connection
-  default: georgd
+  default: georgmcaps
   values:
     - georgd
     - gdcontaineragent
