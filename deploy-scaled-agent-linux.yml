@@ -44,7 +44,7 @@ steps:
     $poolId = common/GetPoolId.ps1 -AzureDevOpsOrganization $(AzureDevOpsOrganization) -AzureDevOpsPersonalAccessToken $(AzureDevOpsToken) -PoolName ${{ parameters.PoolName }}
     Write-Host "##vso[task.setvariable variable=poolId]$poolId"
     [System.Uri] $uri = [System.Uri]::new("$(AzureDevOpsOrganization)")
-    $namespace="{0}-pool-{1}" -f $uri.Segments[-1], $poolId
+    $namespace="{0}-pool-{1}" -f $(($uri.Segments[-1].ToLower())), $poolId
     Write-Host "Poolid:$poolId"
     Write-Host "Namespace:$namespace"
     Write-Host "##vso[task.setvariable variable=namespace]$namespace"
