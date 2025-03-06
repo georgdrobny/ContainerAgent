@@ -74,8 +74,11 @@ steps:
   enabled: true
   condition: ne(variables.poolId, 0)
   inputs:
-    connectionType: 'Kubernetes Service Connection'
-    kubernetesServiceConnection: 'aks-mixed'
+    connectionType: 'Azure Resource Manager'
+    azureSubscription: 'mcap-453255'
+    azureResourceGroup: 'aks-mixed'
+    kubernetesCluster: 'aks-mixed'
+    useClusterAdmin: true
     command: 'install'
     chartType: 'FilePath'
     chartPath: '$(chartPath)'
