@@ -22,10 +22,11 @@ parameters:
 - name: Repo
   displayName: Agent Repo
   type: string
-  default: georgd
+  default: georgmcaps
   values:
     - containeragent
     - georgd
+    - georgmcaps
     
 variables:
 - group: AzureDevOps
