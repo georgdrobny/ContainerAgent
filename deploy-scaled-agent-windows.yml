@@ -40,10 +40,6 @@ pool:
   vmImage: ubuntu-latest
 
 steps:
-- task: HelmInstaller@0
-  inputs:
-    helmVersion: '3.8.0'
-    installKubectl: false
 - pwsh: |
     $poolId = common/GetPoolId.ps1 -AzureDevOpsOrganization $(AzureDevOpsOrganization) -AzureDevOpsPersonalAccessToken $(AzureDevOpsToken) -PoolName ${{ parameters.PoolName }}
     Write-Host "##vso[task.setvariable variable=poolId]$poolId"
@@ -54,7 +50,7 @@ steps:
   displayName: Get PoolId from PoolName
 - task: AzureCLI@2
   inputs:
-    azureSubscription: 'MCAPS-georgd'
+    azureSubscription: 'mcap-453255'
     scriptType: 'pscore'
     scriptLocation: 'inlineScript'
     inlineScript: |
@@ -70,12 +66,18 @@ steps:
   condition: eq(variables.checkLatest, false)
 - pwsh: |
     Write-Host "Using Image:$(agentImage)"
+  displayName: Pipeline Agent Image Tag
+- task: KubeloginInstaller@0
+  inputs:
+    kubeloginVersion: 'latest'
 - task: HelmDeploy@0
   enabled: true
   condition: ne(variables.poolId, 0)
   inputs:
-    connectionType: 'Kubernetes Service Connection'
-    kubernetesServiceConnection: 'aks-mixed'
+    connectionType: 'Azure Resource Manager'
+    azureSubscription: 'mcap-453255'
+    azureResourceGroup: 'aks-mixed'
+    kubernetesCluster: 'aks-mixed'
     command: 'install'
     chartType: 'FilePath'
     chartPath: '$(chartPath)'
