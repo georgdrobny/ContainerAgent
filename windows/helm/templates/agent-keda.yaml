@@ -15,7 +15,7 @@ spec:
 apiVersion: keda.sh/v1alpha1
 kind: ScaledJob
 metadata:
-  name: win
+  name: agent-win-scaledjob
   namespace: {{ .Values.namespace }}
 spec:
   jobTargetRef:
