@@ -10,7 +10,7 @@ parameters:
 - name: AgentImage
   displayName: Agent Image
   type: string
-  default: ubuntu-24.04
+  default: ubuntu-22.04
   values:
     - ubuntu-22.04
     - ubuntu-24.04
