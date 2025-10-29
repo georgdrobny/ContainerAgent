@@ -36,10 +36,10 @@ stages:
   - job: BuildAgentImage
     strategy:
       matrix:
-        ubuntu-2004:
-          dockerfile: 'dockerfile-ubuntu-2004'
-          repoName: 'ubuntu-20.04'
-          vmImage: 'ubuntu-20.04'
+        ubuntu-2404:
+          dockerfile: 'dockerfile-ubuntu-2404'
+          repoName: 'ubuntu-24.04'
+          vmImage: 'ubuntu-24.04'
         ubuntu-2204:
           dockerfile: 'dockerfile-ubuntu-2204'
           repoName: 'ubuntu-22.04'
