@@ -37,11 +37,11 @@ jobs:
   strategy:
    matrix:
      windows-2025:
-       baseImageName: 'mcr.microsoft.com/dotnet/framework/sdk:4.8-windowsservercore-ltsc2025'
+       baseImageName: 'mcr.microsoft.com/dotnet/framework/sdk:4.8.1-windowsservercore-ltsc2025'
        repoName: 'windows-2025'
        vmImage: 'windows-2025'
      windows-2022:
-       baseImageName: 'mcr.microsoft.com/dotnet/framework/sdk:4.8-windowsservercore-ltsc2022'
+       baseImageName: 'mcr.microsoft.com/dotnet/framework/sdk:4.8.1-windowsservercore-ltsc2022'
        repoName: 'windows-2022'
        vmImage: 'windows-2022'
    maxParallel: 2
